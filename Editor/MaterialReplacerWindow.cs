@@ -3,6 +3,8 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
 
+namespace Anosion.MaterialReplacer;
+
 public class MaterialReplacerWindow : EditorWindow
 {
     /// <summary>
