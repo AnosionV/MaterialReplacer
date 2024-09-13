@@ -121,7 +121,7 @@ jobs:
 
       - name: Update Website
         run: |
-          TOKEN=${{ secrets.TOKEN }}
+          TOKEN=${{ secrets.AUTOUPDATETOKEN }}
           curl \
             -X POST \
             -H "Authorization: token $TOKEN" \
