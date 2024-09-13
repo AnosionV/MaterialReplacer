@@ -1,6 +1,6 @@
 {
   "name": "jp.anosion.material-replacer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "Material Replacer",
   "description": "Material Replacer is a custom editor extension for Unity that allows users to search and replace materials on GameObjects within the Hierarchy.",
   "unity": "2022.3",
