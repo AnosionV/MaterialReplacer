@@ -10,11 +10,11 @@ jobs:
       # Check if TOKEN exists
       - name: Check TOKEN
         run: |
-          if [ -z "${{ secrets.TOKEN }}" ]; then
-            echo "TOKEN is not set"
+          if [ -z "${{ secrets.AUTOUPDATETOKEN }}" ]; then
+            echo "AUTOUPDATETOKEN is not set"
             exit 1
           else
-            echo "TOKEN is set"
+            echo "AUTOUPDATETOKEN is set"
           fi
 
       # Update Website
@@ -22,7 +22,7 @@ jobs:
         run: |
           curl \
             -X POST \
-            -H "Authorization: token ${{ secrets.TOKEN }}" \
+            -H "Authorization: token ${{ secrets.AUTOUPDATETOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/AnosionV/vpm/dispatches \
             -d '{"event_type":"update-vpm-page","client_payload":{"env": "dev"}}'
