@@ -19,6 +19,11 @@ namespace Anosion.MaterialReplacer
         /// </summary>
         private Material replaceMaterial;
 
+        /// <summary>
+        /// 置換後に設定を更新するかどうかを決めるチェックボックス
+        /// </summary>
+        private bool switchMaterialsAfterReplace = false; // 新しく追加
+
         private SerializedObject serializedObject;
         private SerializedProperty targetMaterialsProperty;
 
@@ -51,6 +56,7 @@ namespace Anosion.MaterialReplacer
         {
             serializedObject = new SerializedObject(this);
             targetMaterialsProperty = serializedObject.FindProperty("targetMaterials");
+            InitializeStyles();
         }
 
         private void OnGUI()
@@ -84,17 +90,19 @@ namespace Anosion.MaterialReplacer
 
             if (searchResults.Count > 0)
             {
-                InitializeStyles();
                 DisplaySearchResults();
-
-                // 置換ボタンの表示と有効化設定
-                GUI.enabled = replaceMaterial != null;
-                if (GUILayout.Button("Replace"))
-                {
-                    ReplaceMaterials();
-                }
-                GUI.enabled = true;
             }
+
+            // 追加したチェックボックスを表示
+            switchMaterialsAfterReplace = EditorGUILayout.Toggle("Switch After Replace", switchMaterialsAfterReplace);
+
+            // 置換ボタンの表示と有効化設定
+            GUI.enabled = replaceMaterial != null;
+            if (GUILayout.Button("Replace"))
+            {
+                ReplaceMaterials();
+            }
+            GUI.enabled = true;
         }
 
         /// <summary>
@@ -190,6 +198,9 @@ namespace Anosion.MaterialReplacer
             Undo.IncrementCurrentGroup();
             Undo.SetCurrentGroupName("Replace Materials");
 
+            // 置換前のマテリアルを保存
+            Material previousReplaceMaterial = replaceMaterial;
+
             // 検索結果の各オブジェクトのマテリアルを置き換える
             var replaceTargetRenderer = searchResults
                 .Where(kv => toggles[kv.Key]) // トグルが true のオブジェクトのみに絞る
@@ -211,6 +222,21 @@ namespace Anosion.MaterialReplacer
 
             // Undoグループを一つの操作としてまとめる
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
+
+            // 置換後の設定を更新する機能が有効な場合
+            if (switchMaterialsAfterReplace)
+            {
+                // 置き換えマテリアルをNoneに設定
+                replaceMaterial = null;
+
+                // 対象マテリアルを先ほどの置換マテリアル1つに設定
+                targetMaterials.Clear();
+                targetMaterials.Add(previousReplaceMaterial);
+
+                // シリアライズされたオブジェクトに変更を適用
+                serializedObject.Update();
+                serializedObject.ApplyModifiedProperties();
+            }
 
             // 検索を再実行して最新の状態を反映
             SearchObjectsWithMaterials();
