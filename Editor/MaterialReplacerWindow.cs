@@ -22,7 +22,7 @@ namespace Anosion.MaterialReplacer
         /// <summary>
         /// 置換後に設定を更新するかどうかを決めるチェックボックス
         /// </summary>
-        private bool switchMaterialsAfterReplace = false; // 新しく追加
+        private bool switchMaterialsAfterReplace = false;
 
         private SerializedObject serializedObject;
         private SerializedProperty targetMaterialsProperty;
@@ -88,10 +88,16 @@ namespace Anosion.MaterialReplacer
             // 置き換え先マテリアルを選択するフィールド
             replaceMaterial = (Material)EditorGUILayout.ObjectField("Replace Material", replaceMaterial, typeof(Material), false);
 
+            // スクロールビューの開始
+            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
             if (searchResults.Count > 0)
             {
                 DisplaySearchResults();
             }
+
+            // スクロールビューの終了
+            EditorGUILayout.EndScrollView();
 
             // 追加したチェックボックスを表示
             switchMaterialsAfterReplace = EditorGUILayout.Toggle("Switch After Replace", switchMaterialsAfterReplace);
@@ -150,9 +156,6 @@ namespace Anosion.MaterialReplacer
         /// </summary>
         private void DisplaySearchResults()
         {
-            // スクロールビューの開始
-            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
-
             foreach (var (root, resultMeshes) in searchResults)
             {
                 EditorGUILayout.Space();
@@ -184,9 +187,6 @@ namespace Anosion.MaterialReplacer
 
                 EditorGUILayout.EndVertical();
             }
-
-            // スクロールビューの終了
-            EditorGUILayout.EndScrollView();
         }
 
         /// <summary>
