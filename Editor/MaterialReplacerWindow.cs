@@ -46,6 +46,24 @@ namespace Anosion.MaterialReplacer
         private GUIStyle contentStyle;
         private Vector2 scrollPosition;
 
+        public GUIStyle BoxStyle
+        {
+            get => boxStyle ??= new GUIStyle(EditorStyles.helpBox)
+            {
+                margin = new RectOffset(10, 10, 5, 5),
+                padding = new RectOffset(10, 10, 10, 10)
+            };
+        }
+
+        public GUIStyle ContentStyle
+        {
+            get => contentStyle ??= new GUIStyle(EditorStyles.label)
+            {
+                margin = new RectOffset(20, 10, 5, 5),
+                padding = new RectOffset(10, 10, 5, 5)
+            };
+        }
+
         [MenuItem("Window/Material Replacer")]
         public static void ShowWindow()
         {
@@ -56,7 +74,6 @@ namespace Anosion.MaterialReplacer
         {
             serializedObject = new SerializedObject(this);
             targetMaterialsProperty = serializedObject.FindProperty("targetMaterials");
-            InitializeStyles();
         }
 
         private void OnGUI()
@@ -132,26 +149,6 @@ namespace Anosion.MaterialReplacer
         }
 
         /// <summary>
-        /// GUIスタイルを初期化する
-        /// </summary>
-        private void InitializeStyles()
-        {
-            // タイトルのボックススタイル
-            boxStyle = new GUIStyle(EditorStyles.helpBox)
-            {
-                margin = new RectOffset(10, 10, 5, 5),
-                padding = new RectOffset(10, 10, 10, 10)
-            };
-
-            // コンテンツのスタイル
-            contentStyle = new GUIStyle(EditorStyles.label)
-            {
-                margin = new RectOffset(20, 10, 5, 5),
-                padding = new RectOffset(10, 10, 5, 5)
-            };
-        }
-
-        /// <summary>
         /// 検索結果を表示する
         /// </summary>
         private void DisplaySearchResults()
@@ -159,7 +156,7 @@ namespace Anosion.MaterialReplacer
             foreach (var (root, resultMeshes) in searchResults)
             {
                 EditorGUILayout.Space();
-                EditorGUILayout.BeginVertical(boxStyle);
+                EditorGUILayout.BeginVertical(BoxStyle);
 
                 // ルートオブジェクトのトグルと表示
                 EditorGUILayout.BeginHorizontal();
@@ -172,7 +169,7 @@ namespace Anosion.MaterialReplacer
                     EditorGUILayout.Space();
 
                     // コンテンツの垂直レイアウト
-                    EditorGUILayout.BeginVertical(contentStyle);
+                    EditorGUILayout.BeginVertical(ContentStyle);
 
                     foreach (var mesh in resultMeshes)
                     {
