@@ -105,6 +105,12 @@ namespace Anosion.MaterialReplacer
             // 置き換え先マテリアルを選択するフィールド
             replaceMaterial = (Material)EditorGUILayout.ObjectField("Replace Material", replaceMaterial, typeof(Material), false);
 
+            // 再検索ボタン
+            if (GUILayout.Button("Reload Search Results"))
+            {
+                SearchObjectsWithMaterials();
+            }
+
             // スクロールビューの開始
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
