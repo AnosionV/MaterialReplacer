@@ -48,19 +48,14 @@ namespace Anosion.MaterialReplacer
 
         public GUIStyle BoxStyle
         {
-            get => boxStyle ??= new GUIStyle(EditorStyles.helpBox)
-            {
-                margin = new RectOffset(10, 10, 5, 5),
-                padding = new RectOffset(10, 10, 10, 10)
-            };
+            get => boxStyle ??= new GUIStyle();
         }
 
         public GUIStyle ContentStyle
         {
-            get => contentStyle ??= new GUIStyle(EditorStyles.label)
+            get => contentStyle ??= new GUIStyle()
             {
-                margin = new RectOffset(20, 10, 5, 5),
-                padding = new RectOffset(10, 10, 5, 5)
+                margin = new RectOffset(20, 0, 0, 0)
             };
         }
 
@@ -172,8 +167,6 @@ namespace Anosion.MaterialReplacer
 
                 if (toggles[root])
                 {
-                    EditorGUILayout.Space();
-
                     // コンテンツの垂直レイアウト
                     EditorGUILayout.BeginVertical(ContentStyle);
 
