@@ -10,7 +10,7 @@ namespace Anosion.MaterialReplacer
         private readonly Dictionary<Material, List<MaterialLocation>> materials;
 
         public GameObject Avatar { get; }
-        private ImmutableDictionary<Material, ImmutableArray<MaterialLocation>> Materials => materials.ToImmutableDictionary(entry => entry.Key, entry => ImmutableArray.ToImmutableArray(entry.Value));
+        public ImmutableDictionary<Material, ImmutableArray<MaterialLocation>> Materials => materials.ToImmutableDictionary(entry => entry.Key, entry => ImmutableArray.ToImmutableArray(entry.Value));
         public AvatarMaterialConfiguration(GameObject avatar, Dictionary<GameObject, List<Material>> objectMaterialData)
         {
             Avatar = avatar;
