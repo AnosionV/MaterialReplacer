@@ -42,22 +42,11 @@ namespace Anosion.MaterialReplacer
         /// </summary>
         private Dictionary<GameObject, bool> objectToggles = new();
 
-        private GUIStyle boxStyle;
-        private GUIStyle contentStyle;
         private Vector2 scrollPosition;
 
-        public GUIStyle BoxStyle
-        {
-            get => boxStyle ??= new GUIStyle();
-        }
+        public GUIStyle BoxStyle { get; set; }
 
-        public GUIStyle ContentStyle
-        {
-            get => contentStyle ??= new GUIStyle()
-            {
-                margin = new RectOffset(20, 0, 0, 0)
-            };
-        }
+        public GUIStyle ContentStyle { get; set; }
 
         [MenuItem("Window/Material Replacer")]
         public static void ShowWindow()
@@ -69,6 +58,12 @@ namespace Anosion.MaterialReplacer
         {
             serializedObject = new SerializedObject(this);
             targetMaterialsProperty = serializedObject.FindProperty("targetMaterials");
+
+            BoxStyle = new GUIStyle();
+            ContentStyle = new GUIStyle()
+            {
+                margin = new RectOffset(20, 0, 0, 0)
+            };
         }
 
         private void OnGUI()
