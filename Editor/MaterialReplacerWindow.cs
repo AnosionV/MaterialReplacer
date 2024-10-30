@@ -39,7 +39,6 @@ namespace Anosion.MaterialReplacer
             }
         }
 
-
         private void UpdateMaterialReplacementSettings()
         {
             foreach (var avatar in avatars)
@@ -125,9 +124,7 @@ namespace Anosion.MaterialReplacer
                 {
                     EditorGUILayout.LabelField(avatar.gameObject.name);
 
-                    EditorGUI.BeginDisabledGroup(true);
-                    EditorGUILayout.ObjectField(avatar, typeof(VRCAvatarDescriptor), false);
-                    EditorGUI.EndDisabledGroup();
+                    DrawDisabledObjectField(avatar, typeof(VRCAvatarDescriptor), false);
                 }
 
                 if (!materialReplacementSettings.ContainsKey(avatar))
@@ -146,9 +143,7 @@ namespace Anosion.MaterialReplacer
                         {
                             GUILayout.Space(15); // EditorGUI.IndentLevelScope() を使うと Toggle のクリック判定がおかしくなるのでスペースでインデントする
 
-                            EditorGUI.BeginDisabledGroup(true);
-                            EditorGUILayout.ObjectField(material, typeof(Material), false);
-                            EditorGUI.EndDisabledGroup();
+                            DrawDisabledObjectField(material, typeof(Material), false);
 
                             EditorGUILayout.LabelField("→", GUILayout.Width(40));
 
@@ -171,9 +166,7 @@ namespace Anosion.MaterialReplacer
                                     bool isSelected = EditorGUILayout.Toggle(settings.SelectedMeshLocations[location], GUILayout.Width(15));
                                     settings.SelectedMeshLocations[location] = isSelected;
 
-                                    EditorGUI.BeginDisabledGroup(true);
-                                    EditorGUILayout.ObjectField(location.Mesh, typeof(GameObject), true);
-                                    EditorGUI.EndDisabledGroup();
+                                    DrawDisabledObjectField(location.Mesh, typeof(GameObject), true);
                                 }
                             }
                         }
@@ -234,10 +227,17 @@ namespace Anosion.MaterialReplacer
 
                     AvatarMaterialConfiguration transformedConfig = settings.AvatarMaterialConfig.Map(filteredReplacementMap, settings.SelectedMeshLocations);
                     AvatarMaterialConfiguration.Applymaterials(transformedConfig);
-
                 }
             }
             UpdateMaterialReplacementSettings();
+        }
+
+        private Object DrawDisabledObjectField(Object obj, System.Type objType, bool allowSceneObjects, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginDisabledGroup(true);
+            var returnedField = EditorGUILayout.ObjectField(obj, objType, allowSceneObjects, options);
+            EditorGUI.EndDisabledGroup();
+            return returnedField;
         }
     }
 }
