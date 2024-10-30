@@ -7,7 +7,7 @@ namespace Anosion.MaterialReplacer
     {
         private IMaterialReplacementView[] views;
         private int selectedTab = 0;
-        private readonly string[] tabNames = { "Avatar Replacement" };
+        private readonly string[] tabNames = { "アバター単位", "マテリアル単位" };
 
         [MenuItem("Window/Material Replacer")]
         public static void ShowWindow()
@@ -17,7 +17,11 @@ namespace Anosion.MaterialReplacer
 
         private void OnEnable()
         {
-            views = new IMaterialReplacementView[] { new AvatarReplacementView() };
+            views = new IMaterialReplacementView[] {
+                new AvatarReplacementView(),
+                new SceneWideMaterialReplacementView()
+            };
+
             foreach (var view in views)
             {
                 view.OnEnable();

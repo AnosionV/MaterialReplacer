@@ -9,8 +9,9 @@ namespace Anosion.MaterialReplacer
         public AvatarMaterialConfiguration AvatarMaterialConfig { get; }
         public Dictionary<Material, Material> ReplacementMap { get; }
         public Dictionary<AvatarMaterialConfiguration.MaterialLocation, bool> SelectedMeshLocations { get; }
+        public bool Enable { get; set; }
 
-        public MaterialReplacementSettings(AvatarMaterialConfiguration avatarMaterialConfig)
+        public MaterialReplacementSettings(AvatarMaterialConfiguration avatarMaterialConfig, bool enable = true)
         {
             AvatarMaterialConfig = avatarMaterialConfig;
             ReplacementMap = avatarMaterialConfig.Materials.Keys
@@ -18,6 +19,7 @@ namespace Anosion.MaterialReplacer
             SelectedMeshLocations = avatarMaterialConfig.Materials
                 .SelectMany(material => material.Value)
                 .ToDictionary(location => location, _ => true);
+            Enable = enable;
         }
     }
 }

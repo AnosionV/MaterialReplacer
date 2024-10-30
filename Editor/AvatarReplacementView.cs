@@ -7,42 +7,28 @@ using System.Linq;
 
 namespace Anosion.MaterialReplacer
 {
-    public class AvatarReplacementView : IMaterialReplacementView
+    public class AvatarReplacementView : BaseMaterialReplacementView
     {
-        private Vector2 scrollPosition = Vector2.zero;
         private List<VRCAvatarDescriptor> avatars = new List<VRCAvatarDescriptor>();
         private Dictionary<VRCAvatarDescriptor, MaterialReplacementSettings> materialReplacementSettings = new Dictionary<VRCAvatarDescriptor, MaterialReplacementSettings>();
         private ReorderableList avatarList;
 
-        public void OnEnable()
+        public override void OnEnable()
         {
+            base.OnEnable();
             SetupAvatarList();
-            Undo.undoRedoPerformed += OnUndoRedoPerformed;
         }
 
-        public void OnDisable()
+        public override void OnDisable()
         {
-            Undo.undoRedoPerformed -= OnUndoRedoPerformed;
+            base.OnDisable();
         }
 
-        private void OnUndoRedoPerformed()
+        protected override void OnUndoRedoPerformed()
         {
             if (avatars.Any(avatar => avatar != null && materialReplacementSettings.ContainsKey(avatar) && materialReplacementSettings[avatar].AvatarMaterialConfig.HasDifferences(AvatarMaterialConfiguration.ExtractMaterialData(avatar.gameObject))))
             {
                 EditorApplication.delayCall += UpdateMaterialReplacementSettings;
-            }
-        }
-
-        private void UpdateMaterialReplacementSettings()
-        {
-            foreach (var avatar in avatars)
-            {
-                if (avatar != null)
-                {
-                    Dictionary<GameObject, List<Material>> materialData = AvatarMaterialConfiguration.ExtractMaterialData(avatar.gameObject);
-                    AvatarMaterialConfiguration avatarMaterialConfig = new AvatarMaterialConfiguration(avatar.gameObject, materialData);
-                    materialReplacementSettings[avatar] = new MaterialReplacementSettings(avatarMaterialConfig);
-                }
             }
         }
 
@@ -51,7 +37,7 @@ namespace Anosion.MaterialReplacer
             avatarList = new ReorderableList(avatars, typeof(VRCAvatarDescriptor), true, true, true, true);
             avatarList.drawHeaderCallback = (Rect rect) =>
             {
-                EditorGUI.LabelField(rect, "Avatars");
+                EditorGUI.LabelField(rect, "対象アバター");
             };
 
             avatarList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
@@ -75,15 +61,39 @@ namespace Anosion.MaterialReplacer
             };
         }
 
-        public void OnGUI()
+        private void UpdateMaterialReplacementSettings()
+        {
+            foreach (var avatar in avatars)
+            {
+                if (avatar != null)
+                {
+                    Dictionary<GameObject, List<Material>> materialData = AvatarMaterialConfiguration.ExtractMaterialData(avatar.gameObject);
+                    AvatarMaterialConfiguration avatarMaterialConfig = new AvatarMaterialConfiguration(avatar.gameObject, materialData);
+                    materialReplacementSettings[avatar] = new MaterialReplacementSettings(avatarMaterialConfig);
+                }
+            }
+        }
+
+        public override void OnGUI()
         {
             EditorGUILayout.BeginVertical();
-            GUILayout.Label("Material Replacer - Avatar Replacement", EditorStyles.boldLabel);
 
             Rect listRect = GUILayoutUtility.GetRect(0, avatarList.GetHeight(), GUILayout.ExpandWidth(true));
             avatarList.DoList(listRect);
 
-            HandleDragAndDrop(listRect);
+            List<Object> droppedObjects = HandleDragAndDrop(listRect);
+            foreach (Object obj in droppedObjects)
+            {
+                if (obj is GameObject gameObject)
+                {
+                    VRCAvatarDescriptor avatar = gameObject.GetComponent<VRCAvatarDescriptor>();
+                    if (avatar != null && !avatars.Contains(avatar))
+                    {
+                        avatars.Add(avatar);
+                        UpdateMaterialReplacementSettings();
+                    }
+                }
+            }
 
             if (GUILayout.Button("置換実行", GUILayout.Height(30)))
             {
@@ -92,13 +102,15 @@ namespace Anosion.MaterialReplacer
             EditorGUILayout.EndVertical();
 
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Height(EditorGUIUtility.currentViewWidth - 100));
+
+            GUILayout.Label("置換設定", EditorStyles.boldLabel);
+            if (GUILayout.Button("マテリアル分布の更新", GUILayout.Height(20)))
+            {
+                UpdateMaterialReplacementSettings();
+            }
+
             if (avatars.Count > 0)
             {
-                GUILayout.Label("置換設定", EditorStyles.boldLabel);
-                if (GUILayout.Button("マテリアル分布の更新", GUILayout.Height(20)))
-                {
-                    UpdateMaterialReplacementSettings();
-                }
                 foreach (var avatar in avatars)
                 {
                     if (avatar != null)
@@ -117,7 +129,6 @@ namespace Anosion.MaterialReplacer
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     EditorGUILayout.LabelField(avatar.gameObject.name);
-
                     DrawDisabledObjectField(avatar, typeof(VRCAvatarDescriptor), false);
                 }
 
@@ -125,6 +136,7 @@ namespace Anosion.MaterialReplacer
                 {
                     UpdateMaterialReplacementSettings();
                 }
+
                 MaterialReplacementSettings settings = materialReplacementSettings[avatar];
                 AvatarMaterialConfiguration avatarMaterialConfig = settings.AvatarMaterialConfig;
 
@@ -170,37 +182,6 @@ namespace Anosion.MaterialReplacer
             GUILayout.Space(10);
         }
 
-        private void HandleDragAndDrop(Rect dropArea)
-        {
-            Event evt = Event.current;
-
-            switch (evt.type)
-            {
-                case EventType.DragUpdated:
-                case EventType.DragPerform:
-                    if (!dropArea.Contains(evt.mousePosition))
-                        return;
-
-                    DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-
-                    if (evt.type == EventType.DragPerform)
-                    {
-                        DragAndDrop.AcceptDrag();
-
-                        foreach (Object draggedObject in DragAndDrop.objectReferences)
-                        {
-                            VRCAvatarDescriptor avatar = ((GameObject)draggedObject)?.GetComponent<VRCAvatarDescriptor>();
-                            if (avatar != null && !avatars.Contains(avatar))
-                            {
-                                avatars.Add(avatar);
-                            }
-                        }
-                    }
-                    Event.current.Use();
-                    break;
-            }
-        }
-
         private void ExecuteReplacement()
         {
             foreach (var avatar in avatars)
@@ -223,14 +204,6 @@ namespace Anosion.MaterialReplacer
                 }
             }
             UpdateMaterialReplacementSettings();
-        }
-
-        private Object DrawDisabledObjectField(Object obj, System.Type objType, bool allowSceneObjects, params GUILayoutOption[] options)
-        {
-            EditorGUI.BeginDisabledGroup(true);
-            var returnedField = EditorGUILayout.ObjectField(obj, objType, allowSceneObjects, options);
-            EditorGUI.EndDisabledGroup();
-            return returnedField;
         }
     }
 }
