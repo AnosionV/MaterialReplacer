@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Anosion.MaterialReplacer
 {
-    public class AvatarReplacementView
+    public class AvatarReplacementView : IMaterialReplacementView
     {
         private Vector2 scrollPosition = Vector2.zero;
         private List<VRCAvatarDescriptor> avatars = new List<VRCAvatarDescriptor>();

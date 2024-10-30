@@ -1,14 +1,13 @@
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
-using VRC.SDK3.Avatars.Components;
 
 namespace Anosion.MaterialReplacer
 {
     public class MaterialReplacerWindow : EditorWindow
     {
-        private Vector2 scrollPosition = Vector2.zero;
-        private AvatarReplacementView avatarReplacementView;
+        private IMaterialReplacementView[] views;
+        private int selectedTab = 0;
+        private string[] tabNames = { "Avatar Replacement" };
 
         [MenuItem("Window/Material Replacer")]
         public static void ShowWindow()
@@ -18,18 +17,25 @@ namespace Anosion.MaterialReplacer
 
         private void OnEnable()
         {
-            avatarReplacementView = new AvatarReplacementView();
-            avatarReplacementView.OnEnable();
+            views = new IMaterialReplacementView[] { new AvatarReplacementView() };
+            foreach (var view in views)
+            {
+                view.OnEnable();
+            }
         }
 
         private void OnDisable()
         {
-            avatarReplacementView.OnDisable();
+            foreach (var view in views)
+            {
+                view.OnDisable();
+            }
         }
 
         private void OnGUI()
         {
-            avatarReplacementView.OnGUI();
+            selectedTab = GUILayout.Toolbar(selectedTab, tabNames);
+            views[selectedTab].OnGUI();
         }
     }
 }
