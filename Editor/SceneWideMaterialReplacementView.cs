@@ -95,7 +95,7 @@ namespace Anosion.MaterialReplacer
             }
             EditorGUILayout.EndVertical();
 
-            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Height(EditorGUIUtility.currentViewWidth - 100));
+            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
             GUILayout.Label("置換設定", EditorStyles.boldLabel);
             if (GUILayout.Button("マテリアル分布の更新", GUILayout.Height(20)))
             {
