@@ -75,7 +75,7 @@ namespace Anosion.MaterialReplacer
                         .ToList()
                 );
 
-            // ”äŠrˆ—
+            // æ¯”è¼ƒå‡¦ç†
             return !thisobjectMaterialData.Keys.ToHashSet().SetEquals(objectMaterialData.Keys) ||
                    thisobjectMaterialData.Any(kvp => kvp.Value.Count != objectMaterialData[kvp.Key].Count || !kvp.Value.SequenceEqual(objectMaterialData[kvp.Key]));
         }

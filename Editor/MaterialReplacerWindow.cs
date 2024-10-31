@@ -7,7 +7,7 @@ namespace Anosion.MaterialReplacer
     {
         private IMaterialReplacementView[] views;
         private int selectedTab = 0;
-        private readonly string[] tabNames = { "ƒAƒoƒ^[’PˆÊ", "ƒ}ƒeƒŠƒAƒ‹’PˆÊ" };
+        private readonly string[] tabNames = { "ã‚¢ãƒã‚¿ãƒ¼å˜ä½", "ãƒãƒ†ãƒªã‚¢ãƒ«å˜ä½" };
 
         [MenuItem("Window/Material Replacer")]
         public static void ShowWindow()

@@ -37,7 +37,7 @@ namespace Anosion.MaterialReplacer
             avatarList = new ReorderableList(avatars, typeof(VRCAvatarDescriptor), true, true, true, true);
             avatarList.drawHeaderCallback = (Rect rect) =>
             {
-                EditorGUI.LabelField(rect, "‘ÎÛƒAƒoƒ^[");
+                EditorGUI.LabelField(rect, "å¯¾è±¡ã‚¢ãƒã‚¿ãƒ¼");
             };
 
             avatarList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
@@ -95,7 +95,7 @@ namespace Anosion.MaterialReplacer
                 }
             }
 
-            if (GUILayout.Button("’uŠ·Às", GUILayout.Height(30)))
+            if (GUILayout.Button("ç½®æ›å®Ÿè¡Œ", GUILayout.Height(30)))
             {
                 ExecuteReplacement();
             }
@@ -103,8 +103,8 @@ namespace Anosion.MaterialReplacer
 
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Height(EditorGUIUtility.currentViewWidth - 100));
 
-            GUILayout.Label("’uŠ·İ’è", EditorStyles.boldLabel);
-            if (GUILayout.Button("ƒ}ƒeƒŠƒAƒ‹•ª•z‚ÌXV", GUILayout.Height(20)))
+            GUILayout.Label("ç½®æ›è¨­å®š", EditorStyles.boldLabel);
+            if (GUILayout.Button("ãƒãƒ†ãƒªã‚¢ãƒ«åˆ†å¸ƒã®æ›´æ–°", GUILayout.Height(20)))
             {
                 UpdateMaterialReplacementSettings();
             }
@@ -151,12 +151,12 @@ namespace Anosion.MaterialReplacer
 
                             DrawDisabledObjectField(material, typeof(Material), false);
 
-                            EditorGUILayout.LabelField("¨", GUILayout.Width(40));
+                            EditorGUILayout.LabelField("â†’", GUILayout.Width(40));
 
                             Material targetMaterial = (Material)EditorGUILayout.ObjectField(settings.ReplacementMap[material], typeof(Material), false);
                             settings.ReplacementMap[material] = targetMaterial;
 
-                            if (GUILayout.Button("~", GUILayout.Width(20)))
+                            if (GUILayout.Button("Ã—", GUILayout.Width(20)))
                             {
                                 settings.ReplacementMap[material] = null;
                             }

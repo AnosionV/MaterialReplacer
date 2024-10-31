@@ -14,18 +14,18 @@ namespace Anosion.MaterialReplacer
         private List<MaterialReplacementSettings> materialReplacementSettingsList = new List<MaterialReplacementSettings>();
         private bool enableSwitch = true;
 
-        // ’uŠ·‰Â”\‚Èƒ}ƒeƒŠƒAƒ‹‚ÌƒŠƒXƒg‚ğ‰Šú‰»‚µ‚Ü‚·B
+        // ç½®æ›å¯èƒ½ãªãƒãƒ†ãƒªã‚¢ãƒ«ã®ãƒªã‚¹ãƒˆã‚’åˆæœŸåŒ–ã—ã¾ã™ã€‚
         private void InitializeReplaceableMaterialsList()
         {
             replaceableMaterials = new ReorderableList(new List<Material>(), typeof(Material), true, true, true, true);
 
-            // ƒwƒbƒ_[‚Ì•`‰æİ’è
+            // ãƒ˜ãƒƒãƒ€ãƒ¼ã®æç”»è¨­å®š
             replaceableMaterials.drawHeaderCallback = (Rect rect) =>
             {
-                EditorGUI.LabelField(rect, "’uŠ·Œ³ƒ}ƒeƒŠƒAƒ‹");
+                EditorGUI.LabelField(rect, "ç½®æ›å…ƒãƒãƒ†ãƒªã‚¢ãƒ«");
             };
 
-            // Še—v‘f‚Ì•`‰æİ’è
+            // å„è¦ç´ ã®æç”»è¨­å®š
             replaceableMaterials.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
             {
                 rect.y += 2;
@@ -38,14 +38,14 @@ namespace Anosion.MaterialReplacer
                 }
             };
 
-            // —v‘f‚ª’Ç‰Á‚³‚ê‚½Û‚Ìˆ—
+            // è¦ç´ ãŒè¿½åŠ ã•ã‚ŒãŸéš›ã®å‡¦ç†
             replaceableMaterials.onAddCallback = (ReorderableList list) =>
             {
                 list.list.Add(null);
                 UpdateMaterialReplacementSettings();
             };
 
-            // —v‘f‚ªíœ‚³‚ê‚½Û‚Ìˆ—
+            // è¦ç´ ãŒå‰Šé™¤ã•ã‚ŒãŸéš›ã®å‡¦ç†
             replaceableMaterials.onRemoveCallback = (ReorderableList list) =>
             {
                 list.list.RemoveAt(list.index);
@@ -53,20 +53,20 @@ namespace Anosion.MaterialReplacer
             };
         }
 
-        // ƒrƒ…[‚ª—LŒø‚É‚È‚Á‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·iƒGƒfƒBƒ^[ƒEƒBƒ“ƒhƒE‚ğŠJ‚­A‚Ü‚½‚Íƒ^ƒu‚ğØ‚è‘Ö‚¦‚éê‡‚È‚ÇjB
+        // ãƒ“ãƒ¥ãƒ¼ãŒæœ‰åŠ¹ã«ãªã£ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ï¼ˆã‚¨ãƒ‡ã‚£ã‚¿ãƒ¼ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’é–‹ãã€ã¾ãŸã¯ã‚¿ãƒ–ã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹å ´åˆãªã©ï¼‰ã€‚
         public override void OnEnable()
         {
             base.OnEnable();
             InitializeReplaceableMaterialsList();
         }
 
-        // ƒrƒ…[‚ª–³Œø‚É‚È‚Á‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·iƒGƒfƒBƒ^[ƒEƒBƒ“ƒhƒE‚ğ•Â‚¶‚éA‚Ü‚½‚Íƒ^ƒu‚ğØ‚è‘Ö‚¦‚éê‡‚È‚ÇjB
+        // ãƒ“ãƒ¥ãƒ¼ãŒç„¡åŠ¹ã«ãªã£ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ï¼ˆã‚¨ãƒ‡ã‚£ã‚¿ãƒ¼ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’é–‰ã˜ã‚‹ã€ã¾ãŸã¯ã‚¿ãƒ–ã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹å ´åˆãªã©ï¼‰ã€‚
         public override void OnDisable()
         {
             base.OnDisable();
         }
 
-        // ƒ}ƒeƒŠƒAƒ‹’uŠ·ƒrƒ…[‚ÌGUI‚ğ•`‰æ‚µ‚Ü‚·iƒ}ƒeƒŠƒAƒ‹‘I‘ğ‚¨‚æ‚ÑƒIƒuƒWƒFƒNƒgˆ—ƒŠƒXƒg‚ğŠÜ‚ŞjB
+        // ãƒãƒ†ãƒªã‚¢ãƒ«ç½®æ›ãƒ“ãƒ¥ãƒ¼ã®GUIã‚’æç”»ã—ã¾ã™ï¼ˆãƒãƒ†ãƒªã‚¢ãƒ«é¸æŠãŠã‚ˆã³ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆå‡¦ç†ãƒªã‚¹ãƒˆã‚’å«ã‚€ï¼‰ã€‚
         public override void OnGUI()
         {
             EditorGUILayout.BeginVertical();
@@ -84,20 +84,20 @@ namespace Anosion.MaterialReplacer
                 }
             }
 
-            targetMaterial = (Material)EditorGUILayout.ObjectField("’uŠ·æƒ}ƒeƒŠƒAƒ‹", targetMaterial, typeof(Material), false);
+            targetMaterial = (Material)EditorGUILayout.ObjectField("ç½®æ›å…ˆãƒãƒ†ãƒªã‚¢ãƒ«", targetMaterial, typeof(Material), false);
 
             GUILayout.Space(15);
 
-            enableSwitch = EditorGUILayout.Toggle("’uŠ·Œã‚Éƒ}ƒeƒŠƒAƒ‹‚ğ“ü‚ê‘Ö‚¦", enableSwitch, GUILayout.Width(15));
-            if (GUILayout.Button("’uŠ·Às", GUILayout.Height(30)))
+            enableSwitch = EditorGUILayout.Toggle("ç½®æ›å¾Œã«ãƒãƒ†ãƒªã‚¢ãƒ«ã‚’å…¥ã‚Œæ›¿ãˆ", enableSwitch, GUILayout.Width(15));
+            if (GUILayout.Button("ç½®æ›å®Ÿè¡Œ", GUILayout.Height(30)))
             {
                 ExecuteReplacement();
             }
             EditorGUILayout.EndVertical();
 
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Height(EditorGUIUtility.currentViewWidth - 100));
-            GUILayout.Label("’uŠ·İ’è", EditorStyles.boldLabel);
-            if (GUILayout.Button("ƒ}ƒeƒŠƒAƒ‹•ª•z‚ÌXV", GUILayout.Height(20)))
+            GUILayout.Label("ç½®æ›è¨­å®š", EditorStyles.boldLabel);
+            if (GUILayout.Button("ãƒãƒ†ãƒªã‚¢ãƒ«åˆ†å¸ƒã®æ›´æ–°", GUILayout.Height(20)))
             {
                 UpdateMaterialReplacementSettings();
             }
@@ -111,14 +111,14 @@ namespace Anosion.MaterialReplacer
             EditorGUILayout.EndScrollView();
         }
 
-        // Undo/RedoƒCƒxƒ“ƒg‚ğˆ—‚µ‚Ü‚·B
+        // Undo/Redoã‚¤ãƒ™ãƒ³ãƒˆã‚’å‡¦ç†ã—ã¾ã™ã€‚
         protected override void OnUndoRedoPerformed()
         {
-            // Undo/Redo‘€ì‚ªs‚í‚ê‚½‚Æ‚«‚Éƒ}ƒeƒŠƒAƒ‹’uŠ·İ’è‚ğÄ\’z‚µ‚Ü‚·B
+            // Undo/Redoæ“ä½œãŒè¡Œã‚ã‚ŒãŸã¨ãã«ãƒãƒ†ãƒªã‚¢ãƒ«ç½®æ›è¨­å®šã‚’å†æ§‹ç¯‰ã—ã¾ã™ã€‚
             UpdateMaterialReplacementSettings();
         }
 
-        // ’uŠ·‰Â”\‚Èƒ}ƒeƒŠƒAƒ‹‚Æ’uŠ·Œã‚Ìƒ}ƒeƒŠƒAƒ‹‚ÉŠî‚Ã‚¢‚ÄAƒV[ƒ“ƒIƒuƒWƒFƒNƒg‚Ìƒ}ƒeƒŠƒAƒ‹’uŠ·İ’è‚ğXV‚µ‚Ü‚·B
+        // ç½®æ›å¯èƒ½ãªãƒãƒ†ãƒªã‚¢ãƒ«ã¨ç½®æ›å¾Œã®ãƒãƒ†ãƒªã‚¢ãƒ«ã«åŸºã¥ã„ã¦ã€ã‚·ãƒ¼ãƒ³ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒãƒ†ãƒªã‚¢ãƒ«ç½®æ›è¨­å®šã‚’æ›´æ–°ã—ã¾ã™ã€‚
         private void UpdateMaterialReplacementSettings()
         {
             materialReplacementSettingsList = Object.FindObjectsOfType<VRCAvatarDescriptor>()
@@ -129,7 +129,7 @@ namespace Anosion.MaterialReplacer
                 .ToList();
         }
 
-        // ƒAƒoƒ^[‚Ìƒ}ƒeƒŠƒAƒ‹İ’è‚ğ•`‰æ‚µ‚Ü‚·B
+        // ã‚¢ãƒã‚¿ãƒ¼ã®ãƒãƒ†ãƒªã‚¢ãƒ«è¨­å®šã‚’æç”»ã—ã¾ã™ã€‚
         private void DrawAvatarMaterialConfiguration(MaterialReplacementSettings settings)
         {
             using (new EditorGUILayout.VerticalScope("box"))

@@ -30,21 +30,21 @@ namespace Anosion.MaterialReplacer
             Event evt = Event.current;
             List<Object> droppedObjects = new List<Object>();
 
-            // ƒhƒ‰ƒbƒO’†‚Ü‚½‚ÍƒhƒƒbƒvƒCƒxƒ“ƒg‚Å‚ ‚èAƒhƒƒbƒvƒGƒŠƒA“à‚ÉƒJ[ƒ\ƒ‹‚ª‚ ‚éê‡
+            // ãƒ‰ãƒ©ãƒƒã‚°ä¸­ã¾ãŸã¯ãƒ‰ãƒ­ãƒƒãƒ—ã‚¤ãƒ™ãƒ³ãƒˆã§ã‚ã‚Šã€ãƒ‰ãƒ­ãƒƒãƒ—ã‚¨ãƒªã‚¢å†…ã«ã‚«ãƒ¼ã‚½ãƒ«ãŒã‚ã‚‹å ´åˆ
             if ((evt.type == EventType.DragUpdated || evt.type == EventType.DragPerform) && dropArea.Contains(evt.mousePosition))
             {
-                // ƒhƒ‰ƒbƒO’†‚ÌƒtƒB[ƒhƒoƒbƒN‚ğİ’è
+                // ãƒ‰ãƒ©ãƒƒã‚°ä¸­ã®ãƒ•ã‚£ãƒ¼ãƒ‰ãƒãƒƒã‚¯ã‚’è¨­å®š
                 DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
 
-                // ƒhƒƒbƒv‚ªÀs‚³‚ê‚½ê‡
+                // ãƒ‰ãƒ­ãƒƒãƒ—ãŒå®Ÿè¡Œã•ã‚ŒãŸå ´åˆ
                 if (evt.type == EventType.DragPerform)
                 {
-                    // ƒhƒƒbƒv‚³‚ê‚½ƒIƒuƒWƒFƒNƒg‚ğó‚¯“ü‚ê‚é
+                    // ãƒ‰ãƒ­ãƒƒãƒ—ã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å—ã‘å…¥ã‚Œã‚‹
                     DragAndDrop.AcceptDrag();
                     droppedObjects.AddRange(DragAndDrop.objectReferences);
                 }
 
-                // ƒCƒxƒ“ƒg‚ğg—pÏ‚İ‚Éİ’è
+                // ã‚¤ãƒ™ãƒ³ãƒˆã‚’ä½¿ç”¨æ¸ˆã¿ã«è¨­å®š
                 Event.current.Use();
             }
 
