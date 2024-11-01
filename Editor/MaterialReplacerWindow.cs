@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -5,9 +6,9 @@ namespace Anosion.MaterialReplacer
 {
     public class MaterialReplacerWindow : EditorWindow
     {
-        private MaterialReplacementView[] views;
+        private (string Name, MaterialReplacementView View)[] tabs;
+        private string[] tabNames;
         private int selectedTab = 0;
-        private readonly string[] tabNames = { "アバター単位", "マテリアル単位" };
 
         [MenuItem("Window/Material Replacer")]
         public static void ShowWindow()
@@ -17,12 +18,14 @@ namespace Anosion.MaterialReplacer
 
         private void OnEnable()
         {
-            views = new MaterialReplacementView[] {
-                new AvatarReplacementView(),
-                new SceneWideMaterialReplacementView()
+            tabs = new (string Name, MaterialReplacementView View)[]
+            {
+                ("アバター単位", new AvatarReplacementView()),
+                ("マテリアル単位", new SceneWideMaterialReplacementView())
             };
+            tabNames = tabs.Select(tab => tab.Name).ToArray();
 
-            foreach (var view in views)
+            foreach (var (_, view) in tabs)
             {
                 view.OnEnable();
             }
@@ -30,7 +33,7 @@ namespace Anosion.MaterialReplacer
 
         private void OnDisable()
         {
-            foreach (var view in views)
+            foreach (var (_, view) in tabs)
             {
                 view.OnDisable();
             }
@@ -39,7 +42,7 @@ namespace Anosion.MaterialReplacer
         private void OnGUI()
         {
             selectedTab = GUILayout.Toolbar(selectedTab, tabNames);
-            views[selectedTab].OnGUI();
+            tabs[selectedTab].View.OnGUI();
         }
     }
 }
