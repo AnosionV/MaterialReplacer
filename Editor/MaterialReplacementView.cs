@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Anosion.MaterialReplacer
 {
-    public abstract class BaseMaterialReplacementView : IMaterialReplacementView
+    public abstract class MaterialReplacementView
     {
         protected Vector2 scrollPosition = Vector2.zero;
 

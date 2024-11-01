@@ -5,7 +5,7 @@ namespace Anosion.MaterialReplacer
 {
     public class MaterialReplacerWindow : EditorWindow
     {
-        private IMaterialReplacementView[] views;
+        private MaterialReplacementView[] views;
         private int selectedTab = 0;
         private readonly string[] tabNames = { "アバター単位", "マテリアル単位" };
 
@@ -17,7 +17,7 @@ namespace Anosion.MaterialReplacer
 
         private void OnEnable()
         {
-            views = new IMaterialReplacementView[] {
+            views = new MaterialReplacementView[] {
                 new AvatarReplacementView(),
                 new SceneWideMaterialReplacementView()
             };

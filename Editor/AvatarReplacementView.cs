@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Anosion.MaterialReplacer
 {
-    public class AvatarReplacementView : BaseMaterialReplacementView
+    public class AvatarReplacementView : MaterialReplacementView
     {
         private List<VRCAvatarDescriptor> avatars = new List<VRCAvatarDescriptor>();
         private Dictionary<VRCAvatarDescriptor, MaterialReplacementSettings> materialReplacementSettings = new Dictionary<VRCAvatarDescriptor, MaterialReplacementSettings>();

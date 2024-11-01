@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Anosion.MaterialReplacer
 {
-    public class SceneWideMaterialReplacementView : BaseMaterialReplacementView
+    public class SceneWideMaterialReplacementView : MaterialReplacementView
     {
         private ReorderableList replaceableMaterials;
         private Material targetMaterial;
