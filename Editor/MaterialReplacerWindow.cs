@@ -7,6 +7,7 @@ namespace Anosion.MaterialReplacer
     public class MaterialReplacerWindow : EditorWindow
     {
         private (string Name, MaterialReplacementView View)[] tabs;
+        private MaterialReplacementView[] views;
         private string[] tabNames;
         private int selectedTab = 0;
 
@@ -18,14 +19,18 @@ namespace Anosion.MaterialReplacer
 
         private void OnEnable()
         {
-            tabs = new (string Name, MaterialReplacementView View)[]
+            if (tabs == null)
             {
-                ("アバター単位", new AvatarReplacementView()),
-                ("マテリアル単位", new SceneWideMaterialReplacementView())
-            };
-            tabNames = tabs.Select(tab => tab.Name).ToArray();
+                tabs = new (string Name, MaterialReplacementView View)[]
+                {
+                    ("アバター単位", new AvatarReplacementView()),
+                    ("マテリアル単位", new SceneWideMaterialReplacementView())
+                };
+                views = tabs.Select(tab => tab.View).ToArray();
+                tabNames = tabs.Select(tab => tab.Name).ToArray();
+            }
 
-            foreach (var (_, view) in tabs)
+            foreach (var view in views)
             {
                 view.OnEnable();
             }
@@ -33,7 +38,7 @@ namespace Anosion.MaterialReplacer
 
         private void OnDisable()
         {
-            foreach (var (_, view) in tabs)
+            foreach (var view in views)
             {
                 view.OnDisable();
             }
