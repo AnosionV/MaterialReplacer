@@ -5,7 +5,7 @@ using VRC.SDK3.Avatars.Components;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Anosion.MaterialReplacer
+namespace Anosion.MaterialReplacer.View
 {
     public class SceneWideMaterialReplacementView : MaterialReplacementView
     {
@@ -21,13 +21,13 @@ namespace Anosion.MaterialReplacer
             replaceableMaterials = new ReorderableList(new List<Material>(), typeof(Material), true, true, true, true);
 
             // ヘッダーの描画設定
-            replaceableMaterials.drawHeaderCallback = (Rect rect) =>
+            replaceableMaterials.drawHeaderCallback = (rect) =>
             {
                 EditorGUI.LabelField(rect, "置換元マテリアル");
             };
 
             // 各要素の描画設定
-            replaceableMaterials.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            replaceableMaterials.drawElementCallback = (rect, index, isActive, isFocused) =>
             {
                 rect.y += 2;
                 rect.height = EditorGUIUtility.singleLineHeight;
@@ -40,14 +40,14 @@ namespace Anosion.MaterialReplacer
             };
 
             // 要素が追加された際の処理
-            replaceableMaterials.onAddCallback = (ReorderableList list) =>
+            replaceableMaterials.onAddCallback = (list) =>
             {
                 list.list.Add(null);
                 UpdateMaterialReplacementSettings();
             };
 
             // 要素が削除された際の処理
-            replaceableMaterials.onRemoveCallback = (ReorderableList list) =>
+            replaceableMaterials.onRemoveCallback = (list) =>
             {
                 list.list.RemoveAt(list.index);
                 UpdateMaterialReplacementSettings();
@@ -90,7 +90,7 @@ namespace Anosion.MaterialReplacer
             GUILayout.Space(15);
 
             var includeInactive = EditorGUILayout.Toggle("無効化アバターも含める", this.includeInactive, GUILayout.Width(15));
-            if(includeInactive != this.includeInactive)
+            if (includeInactive != this.includeInactive)
             {
                 this.includeInactive = includeInactive;
                 UpdateMaterialReplacementSettings();
@@ -189,7 +189,7 @@ namespace Anosion.MaterialReplacer
                     Undo.RegisterCompleteObjectUndo(renderer, "Material Replacement");
                 }
 
-                AvatarMaterialConfiguration transformedConfig = settings.AvatarMaterialConfig.Map(replaceableMaterials.list.OfType<Material>().ToDictionary(material => material, _ => targetMaterial), settings.SelectedMeshLocations);
+                AvatarMaterialConfiguration transformedConfig = settings.AvatarMaterialConfig.TransformMaterials(replaceableMaterials.list.OfType<Material>().ToDictionary(material => material, _ => targetMaterial), settings.SelectedMeshLocations);
                 AvatarMaterialConfiguration.Applymaterials(transformedConfig);
             }
 

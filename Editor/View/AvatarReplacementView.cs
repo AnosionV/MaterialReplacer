@@ -5,7 +5,7 @@ using VRC.SDK3.Avatars.Components;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Anosion.MaterialReplacer
+namespace Anosion.MaterialReplacer.View
 {
     public class AvatarReplacementView : MaterialReplacementView
     {
@@ -35,25 +35,25 @@ namespace Anosion.MaterialReplacer
         private void SetupAvatarList()
         {
             avatarList = new ReorderableList(avatars, typeof(VRCAvatarDescriptor), true, true, true, true);
-            avatarList.drawHeaderCallback = (Rect rect) =>
+            avatarList.drawHeaderCallback = (rect) =>
             {
                 EditorGUI.LabelField(rect, "対象アバター");
             };
 
-            avatarList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            avatarList.drawElementCallback = (rect, index, isActive, isFocused) =>
             {
                 avatars[index] = (VRCAvatarDescriptor)EditorGUI.ObjectField(
                     new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight),
                     avatars[index], typeof(VRCAvatarDescriptor), true);
             };
 
-            avatarList.onAddCallback = (ReorderableList list) =>
+            avatarList.onAddCallback = (list) =>
             {
                 avatars.Add(null);
                 UpdateMaterialReplacementSettings();
             };
 
-            avatarList.onRemoveCallback = (ReorderableList list) =>
+            avatarList.onRemoveCallback = (list) =>
             {
                 VRCAvatarDescriptor removedAvatar = avatars[list.index];
                 avatars.RemoveAt(list.index);
@@ -199,7 +199,7 @@ namespace Anosion.MaterialReplacer
                         Undo.RegisterCompleteObjectUndo(renderer, "Material Replacement");
                     }
 
-                    AvatarMaterialConfiguration transformedConfig = settings.AvatarMaterialConfig.Map(filteredReplacementMap, settings.SelectedMeshLocations);
+                    AvatarMaterialConfiguration transformedConfig = settings.AvatarMaterialConfig.TransformMaterials(filteredReplacementMap, settings.SelectedMeshLocations);
                     AvatarMaterialConfiguration.Applymaterials(transformedConfig);
                 }
             }

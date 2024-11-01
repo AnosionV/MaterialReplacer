@@ -2,7 +2,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Anosion.MaterialReplacer
+namespace Anosion.MaterialReplacer.View
 {
     public class MaterialReplacerWindow : EditorWindow
     {

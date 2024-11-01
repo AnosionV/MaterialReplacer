@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace Anosion.MaterialReplacer
+namespace Anosion.MaterialReplacer.View
 {
     public abstract class MaterialReplacementView
     {
