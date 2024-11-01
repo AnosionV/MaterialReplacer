@@ -12,6 +12,7 @@ namespace Anosion.MaterialReplacer
         private ReorderableList replaceableMaterials;
         private Material targetMaterial;
         private List<MaterialReplacementSettings> materialReplacementSettingsList = new List<MaterialReplacementSettings>();
+        private bool includeInactive = true;
         private bool enableSwitch = true;
 
         // 置換可能なマテリアルのリストを初期化します。
@@ -88,6 +89,12 @@ namespace Anosion.MaterialReplacer
 
             GUILayout.Space(15);
 
+            var includeInactive = EditorGUILayout.Toggle("無効化アバターも含める", this.includeInactive, GUILayout.Width(15));
+            if(includeInactive != this.includeInactive)
+            {
+                this.includeInactive = includeInactive;
+                UpdateMaterialReplacementSettings();
+            }
             enableSwitch = EditorGUILayout.Toggle("置換後にマテリアルを入れ替え", enableSwitch, GUILayout.Width(15));
             if (GUILayout.Button("置換実行", GUILayout.Height(30)))
             {
@@ -121,7 +128,7 @@ namespace Anosion.MaterialReplacer
         // 置換可能なマテリアルと置換後のマテリアルに基づいて、シーンオブジェクトのマテリアル置換設定を更新します。
         private void UpdateMaterialReplacementSettings()
         {
-            materialReplacementSettingsList = Object.FindObjectsOfType<VRCAvatarDescriptor>()
+            materialReplacementSettingsList = Object.FindObjectsOfType<VRCAvatarDescriptor>(includeInactive)
                 .Select(avatarDescriptor => avatarDescriptor.gameObject)
                 .Select(avatar => new AvatarMaterialConfiguration(avatar, AvatarMaterialConfiguration.ExtractMaterialData(avatar)))
                 .Where(config => replaceableMaterials.list.OfType<Material>().Any(material => config.Materials.ContainsKey(material)))
