@@ -13,18 +13,17 @@ namespace Anosion.MaterialReplacer
         public ImmutableDictionary<Material, ImmutableArray<MaterialLocation>> Materials =>
             materials.ToImmutableDictionary(entry => entry.Key, entry => ImmutableArray.CreateRange(entry.Value));
 
-        public AvatarMaterialConfiguration(GameObject avatar, Dictionary<GameObject, List<Material>> objectMaterialData)
-        {
-            Avatar = avatar;
-            materials = objectMaterialData
+        public AvatarMaterialConfiguration(GameObject avatar, Dictionary<GameObject, List<Material>> objectMaterialData) : this(
+            avatar,
+            objectMaterialData
                 .SelectMany(meshEntry => meshEntry.Value.Select((material, slotIndex) => (Mesh: meshEntry.Key, Material: material, SlotIndex: slotIndex)))
                 .Where(entry => entry.Material != null && entry.Mesh != null)
                 .GroupBy(entry => entry.Material)
                 .ToDictionary(
                     group => group.Key,
                     group => group.Select(entry => new MaterialLocation(entry.Mesh, entry.SlotIndex)).ToList()
-                );
-        }
+                ))
+        { }
 
         private AvatarMaterialConfiguration(GameObject avatar, Dictionary<Material, List<MaterialLocation>> materials)
         {
