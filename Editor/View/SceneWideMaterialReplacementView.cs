@@ -190,7 +190,7 @@ namespace Anosion.MaterialReplacer.View
                 }
 
                 AvatarMaterialConfiguration transformedConfig = settings.AvatarMaterialConfig.TransformMaterials(replaceableMaterials.list.OfType<Material>().ToDictionary(material => material, _ => targetMaterial), settings.SelectedMeshLocations);
-                AvatarMaterialConfiguration.Applymaterials(transformedConfig);
+                AvatarMaterialConfiguration.ApplyMaterials(transformedConfig);
             }
 
             if (enableSwitch)

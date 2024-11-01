@@ -10,61 +10,52 @@ namespace Anosion.MaterialReplacer
         private readonly Dictionary<Material, List<MaterialLocation>> materials;
 
         public GameObject Avatar { get; }
-        public ImmutableDictionary<Material, ImmutableArray<MaterialLocation>> Materials => materials.ToImmutableDictionary(entry => entry.Key, entry => ImmutableArray.ToImmutableArray(entry.Value));
+        public ImmutableDictionary<Material, ImmutableArray<MaterialLocation>> Materials =>
+            materials.ToImmutableDictionary(entry => entry.Key, entry => ImmutableArray.CreateRange(entry.Value));
+
         public AvatarMaterialConfiguration(GameObject avatar, Dictionary<GameObject, List<Material>> objectMaterialData)
         {
             Avatar = avatar;
-            materials = new Dictionary<Material, List<MaterialLocation>>();
-
-            foreach (var meshEntry in objectMaterialData)
-            {
-                GameObject mesh = meshEntry.Key;
-                List<Material> materials = meshEntry.Value;
-
-                foreach (var (material, slotIndex) in materials.Select((mat, index) => (mat, index)))
-                {
-                    AddMaterialLocation(material, mesh, slotIndex);
-                }
-            }
+            materials = objectMaterialData
+                .SelectMany(meshEntry => meshEntry.Value.Select((material, slotIndex) => (Mesh: meshEntry.Key, Material: material, SlotIndex: slotIndex)))
+                .Where(entry => entry.Material != null && entry.Mesh != null)
+                .GroupBy(entry => entry.Material)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Select(entry => new MaterialLocation(entry.Mesh, entry.SlotIndex)).ToList()
+                );
         }
 
-        private void AddMaterialLocation(Material material, GameObject mesh, int slotIndex)
+        private AvatarMaterialConfiguration(GameObject avatar, Dictionary<Material, List<MaterialLocation>> materials)
         {
-            if (!materials.ContainsKey(material))
-            {
-                materials[material] = new List<MaterialLocation>();
-            }
-
-            materials[material].Add(new MaterialLocation(mesh, slotIndex));
+            Avatar = avatar;
+            this.materials = materials;
         }
 
-        public AvatarMaterialConfiguration Map(Dictionary<Material, Material> replacementMap, Dictionary<MaterialLocation, bool> selectedMeshLocations)
+        public AvatarMaterialConfiguration TransformMaterials(Dictionary<Material, Material> replacementMap, Dictionary<MaterialLocation, bool> selectedMeshLocations)
         {
-            AvatarMaterialConfiguration transformedConfig = new AvatarMaterialConfiguration(Avatar, new Dictionary<GameObject, List<Material>>());
+            bool isMeshSelected(MaterialLocation location) => selectedMeshLocations.TryGetValue(location, out var isSelected) && isSelected;
 
-            foreach (var materialEntry in materials)
-            {
-                Material originalMaterial = materialEntry.Key;
-                Material newMaterial = replacementMap.TryGetValue(originalMaterial, out var replacement) && replacement != null
-                    ? replacement
-                    : originalMaterial;
+            var newMaterials = materials
+                .SelectMany(materialEntry => materialEntry.Value.Select(matLocation => (
+                    Material: isMeshSelected(matLocation) && replacementMap.TryGetValue(materialEntry.Key, out var replacement) && replacement != null
+                        ? replacement
+                        : materialEntry.Key,
+                    matLocation.Mesh,
+                    matLocation.SlotIndex
+                )))
+                .GroupBy(entry => entry.Material)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Select(entry => new MaterialLocation(entry.Mesh, entry.SlotIndex)).ToList()
+                );
 
-                foreach (var location in materialEntry.Value)
-                {
-                    Material materialToAdd = selectedMeshLocations.TryGetValue(location, out var isSelected) && !isSelected
-                        ? originalMaterial
-                        : newMaterial;
-
-                    transformedConfig.AddMaterialLocation(materialToAdd, location.Mesh, location.SlotIndex);
-                }
-            }
-
-            return transformedConfig;
+            return new AvatarMaterialConfiguration(Avatar, newMaterials);
         }
 
         public bool HasDifferences(Dictionary<GameObject, List<Material>> objectMaterialData)
         {
-            Dictionary<GameObject, List<Material>> thisobjectMaterialData = materials
+            Dictionary<GameObject, List<Material>> thisObjectMaterialData = materials
                 .SelectMany(entry => entry.Value.Select(location => (location.Mesh, Material: entry.Key, location.SlotIndex)))
                 .GroupBy(config => config.Mesh)
                 .ToDictionary(
@@ -75,15 +66,18 @@ namespace Anosion.MaterialReplacer
                         .ToList()
                 );
 
-            // 比較処理
-            return !thisobjectMaterialData.Keys.ToHashSet().SetEquals(objectMaterialData.Keys) ||
-                   thisobjectMaterialData.Any(kvp => kvp.Value.Count != objectMaterialData[kvp.Key].Count || !kvp.Value.SequenceEqual(objectMaterialData[kvp.Key]));
+            return !thisObjectMaterialData.Keys.ToHashSet().SetEquals(objectMaterialData.Keys) ||
+                   thisObjectMaterialData.Any(kvp => kvp.Value.Count != objectMaterialData[kvp.Key].Count || !kvp.Value.SequenceEqual(objectMaterialData[kvp.Key]));
         }
 
-        public static Dictionary<GameObject, List<Material>> ExtractMaterialData(GameObject avatar) => avatar.GetComponentsInChildren<Renderer>()
+        public static Dictionary<GameObject, List<Material>> ExtractMaterialData(GameObject avatar)
+        {
+            return avatar.GetComponentsInChildren<Renderer>()
+                .Where(renderer => renderer != null)
                 .ToDictionary(renderer => renderer.gameObject, renderer => renderer.sharedMaterials.ToList());
+        }
 
-        public static void Applymaterials(AvatarMaterialConfiguration config)
+        public static void ApplyMaterials(AvatarMaterialConfiguration config)
         {
             foreach (var materialEntry in config.materials)
             {
@@ -91,7 +85,10 @@ namespace Anosion.MaterialReplacer
 
                 foreach (var location in materialEntry.Value)
                 {
-                    location.ApplyMaterial(material);
+                    if (material != null && location != null)
+                    {
+                        location.ApplyMaterial(material);
+                    }
                 }
             }
         }
@@ -109,12 +106,19 @@ namespace Anosion.MaterialReplacer
 
             public void ApplyMaterial(Material material)
             {
-                Renderer renderer = Mesh.GetComponent<Renderer>();
-                if (renderer != null)
+                if (material == null || ReferenceEquals(Mesh, null))
+                {
+                    return;
+                }
+
+                if (Mesh.TryGetComponent<Renderer>(out var renderer))
                 {
                     Material[] materials = renderer.sharedMaterials;
-                    materials[SlotIndex] = material;
-                    renderer.sharedMaterials = materials;
+                    if (SlotIndex >= 0 && SlotIndex < materials.Length)
+                    {
+                        materials[SlotIndex] = material;
+                        renderer.sharedMaterials = materials;
+                    }
                 }
             }
         }
