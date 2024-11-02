@@ -25,6 +25,11 @@ namespace Anosion.MaterialReplacer.View
             EditorGUI.EndDisabledGroup();
         }
 
+        protected void Indent(int level)
+        {
+            GUILayout.Space(15 * level);
+        }
+
         protected List<Object> HandleDragAndDrop(Rect dropArea)
         {
             Event evt = Event.current;
