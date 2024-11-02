@@ -140,39 +140,49 @@ namespace Anosion.MaterialReplacer.View
                 MaterialReplacementSettings settings = materialReplacementSettings[avatar];
                 AvatarMaterialConfiguration avatarMaterialConfig = settings.AvatarMaterialConfig;
 
-                foreach (var material in avatarMaterialConfig.Materials.Keys)
+                foreach (var materialGroup in avatarMaterialConfig.MaterialGroups)
                 {
                     GUILayout.Space(10);
-                    using (new EditorGUILayout.VerticalScope("box"))
+
+                    using (new EditorGUILayout.HorizontalScope())
                     {
-                        using (new EditorGUILayout.HorizontalScope())
+                        Indent(1);
+                        EditorGUILayout.LabelField(materialGroup.Key);
+                    }
+
+                    foreach (var material in materialGroup.Value.Keys)
+                    {
+                        using (new EditorGUILayout.VerticalScope("box"))
                         {
-                            GUILayout.Space(15);
-
-                            DrawDisabledObjectField(material, typeof(Material), false);
-
-                            EditorGUILayout.LabelField("→", GUILayout.Width(40));
-
-                            Material targetMaterial = (Material)EditorGUILayout.ObjectField(settings.ReplacementMap[material], typeof(Material), false);
-                            settings.ReplacementMap[material] = targetMaterial;
-
-                            if (GUILayout.Button("×", GUILayout.Width(20)))
+                            using (new EditorGUILayout.HorizontalScope())
                             {
-                                settings.ReplacementMap[material] = null;
-                            }
-                        }
+                                Indent(2);
 
-                        if (settings.ReplacementMap[material] != null)
-                        {
-                            foreach (var location in avatarMaterialConfig.Materials[material])
-                            {
-                                using (new EditorGUILayout.HorizontalScope())
+                                DrawDisabledObjectField(material, typeof(Material), false);
+
+                                EditorGUILayout.LabelField("→", GUILayout.Width(40));
+
+                                Material targetMaterial = (Material)EditorGUILayout.ObjectField(settings.ReplacementMap[material], typeof(Material), false);
+                                settings.ReplacementMap[material] = targetMaterial;
+
+                                if (GUILayout.Button("×", GUILayout.Width(20)))
                                 {
-                                    GUILayout.Space(30);
-                                    bool isSelected = EditorGUILayout.Toggle(settings.SelectedMeshLocations[location], GUILayout.Width(15));
-                                    settings.SelectedMeshLocations[location] = isSelected;
+                                    settings.ReplacementMap[material] = null;
+                                }
+                            }
 
-                                    DrawDisabledObjectField(location.Mesh, typeof(GameObject), true);
+                            if (settings.ReplacementMap[material] != null)
+                            {
+                                foreach (var location in avatarMaterialConfig.Materials[material])
+                                {
+                                    using (new EditorGUILayout.HorizontalScope())
+                                    {
+                                        Indent(3);
+                                        bool isSelected = EditorGUILayout.Toggle(settings.SelectedMeshLocations[location], GUILayout.Width(15));
+                                        settings.SelectedMeshLocations[location] = isSelected;
+
+                                        DrawDisabledObjectField(location.Mesh, typeof(GameObject), true);
+                                    }
                                 }
                             }
                         }
