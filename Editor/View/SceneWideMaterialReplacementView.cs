@@ -151,12 +151,11 @@ namespace Anosion.MaterialReplacer.View
                 {
                     foreach (var material in settings.AvatarMaterialConfig.Materials.Keys.Where(material => replaceableMaterials.list.Contains(material)))
                     {
-                        GUILayout.Space(10);
                         using (new EditorGUILayout.VerticalScope("box"))
                         {
                             using (new EditorGUILayout.HorizontalScope())
                             {
-                                GUILayout.Space(15);
+                                Indent(1);
 
                                 DrawDisabledObjectField(material, typeof(Material), false);
                             }
@@ -165,7 +164,7 @@ namespace Anosion.MaterialReplacer.View
                             {
                                 using (new EditorGUILayout.HorizontalScope())
                                 {
-                                    GUILayout.Space(30);
+                                    Indent(2);
                                     bool isSelectedLocation = EditorGUILayout.Toggle(settings.SelectedMeshLocations[location], GUILayout.Width(15));
                                     settings.SelectedMeshLocations[location] = isSelectedLocation;
 
