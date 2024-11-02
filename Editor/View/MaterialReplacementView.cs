@@ -7,6 +7,19 @@ namespace Anosion.MaterialReplacer.View
     public abstract class MaterialReplacementView
     {
         protected Vector2 scrollPosition = Vector2.zero;
+        private GUIStyle centeredText;
+
+        protected GUIStyle CenteredText
+        {
+            get
+            {
+                centeredText ??= new(GUI.skin.label)
+                {
+                    alignment = TextAnchor.MiddleCenter
+                };
+                return centeredText;
+            }
+        }
 
         public virtual void OnEnable()
         {

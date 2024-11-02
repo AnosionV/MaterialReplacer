@@ -160,7 +160,7 @@ namespace Anosion.MaterialReplacer.View
 
                                 DrawDisabledObjectField(material, typeof(Material), false);
 
-                                EditorGUILayout.LabelField("→", GUILayout.Width(40));
+                                EditorGUILayout.LabelField("→", CenteredText, GUILayout.Width(40));
 
                                 Material targetMaterial = (Material)EditorGUILayout.ObjectField(settings.ReplacementMap[material], typeof(Material), false);
                                 settings.ReplacementMap[material] = targetMaterial;
