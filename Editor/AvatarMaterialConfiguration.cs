@@ -76,7 +76,7 @@ namespace Anosion.MaterialReplacer
         }
 
         public static Dictionary<GameObject, List<Material>> ExtractMaterialData(GameObject avatar) =>
-            avatar.GetComponentsInChildren<Renderer>()
+            avatar.GetComponentsInChildren<Renderer>(true)
                 .Where(renderer => renderer != null)
                 .ToDictionary(renderer => renderer.gameObject, renderer => renderer.sharedMaterials.ToList());
 
