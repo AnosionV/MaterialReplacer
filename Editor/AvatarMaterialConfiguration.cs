@@ -136,7 +136,8 @@ namespace Anosion.MaterialReplacer
                 if (x == null) return -1;
                 if (y == null) return 1;
 
-                return string.Compare(PathOf[x], PathOf[y], System.StringComparison.Ordinal);
+                var pathComp = string.Compare(PathOf[x], PathOf[y], System.StringComparison.Ordinal);
+                return pathComp != 0 ? pathComp : x.GetHashCode().CompareTo(y.GetHashCode());
             }
         }
     }
