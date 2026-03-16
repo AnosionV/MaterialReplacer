@@ -11,6 +11,7 @@ namespace Anosion.MaterialReplacer.View
     {
         private List<VRCAvatarDescriptor> avatars = new List<VRCAvatarDescriptor>();
         private Dictionary<VRCAvatarDescriptor, MaterialReplacementSettings> materialReplacementSettings = new Dictionary<VRCAvatarDescriptor, MaterialReplacementSettings>();
+        private Dictionary<VRCAvatarDescriptor, Dictionary<Material, bool>> foldoutStates = new Dictionary<VRCAvatarDescriptor, Dictionary<Material, bool>>();
         private ReorderableList avatarList;
 
         public override void OnEnable()
@@ -58,6 +59,7 @@ namespace Anosion.MaterialReplacer.View
                 VRCAvatarDescriptor removedAvatar = avatars[list.index];
                 avatars.RemoveAt(list.index);
                 materialReplacementSettings.Remove(removedAvatar);
+                foldoutStates.Remove(removedAvatar);
             };
         }
 
@@ -65,19 +67,32 @@ namespace Anosion.MaterialReplacer.View
         {
             foreach (var avatar in avatars)
             {
-                if (avatar != null)
+                if (avatar == null) continue;
+
+                Dictionary<GameObject, List<Material>> materialData = AvatarMaterialConfiguration.ExtractMaterialData(avatar.gameObject);
+                AvatarMaterialConfiguration avatarMaterialConfig = new AvatarMaterialConfiguration(avatar.gameObject, materialData);
+                materialReplacementSettings[avatar] = new MaterialReplacementSettings(avatarMaterialConfig);
+
+                if (!foldoutStates.ContainsKey(avatar))
                 {
-                    Dictionary<GameObject, List<Material>> materialData = AvatarMaterialConfiguration.ExtractMaterialData(avatar.gameObject);
-                    AvatarMaterialConfiguration avatarMaterialConfig = new AvatarMaterialConfiguration(avatar.gameObject, materialData);
-                    materialReplacementSettings[avatar] = new MaterialReplacementSettings(avatarMaterialConfig);
+                    foldoutStates[avatar] = new Dictionary<Material, bool>();
                 }
+
+                var existingFoldouts = foldoutStates[avatar];
+                var newFoldouts = new Dictionary<Material, bool>();
+                foreach (var material in avatarMaterialConfig.Materials.Keys)
+                {
+                    newFoldouts[material] = existingFoldouts.TryGetValue(material, out var state) ? state : false;
+                }
+
+                foldoutStates[avatar] = newFoldouts;
             }
         }
 
         public override void OnGUI()
         {
-            EnsureViewState();
             DrawInputSection();
+            EnsureViewState();
             DrawActionSection();
             DrawResultSection();
         }
@@ -86,7 +101,7 @@ namespace Anosion.MaterialReplacer.View
         {
             foreach (var avatar in avatars)
             {
-                if (avatar != null && !materialReplacementSettings.ContainsKey(avatar))
+                if (avatar != null && (!materialReplacementSettings.ContainsKey(avatar) || !foldoutStates.ContainsKey(avatar)))
                 {
                     UpdateMaterialReplacementSettings();
                     break;
@@ -152,6 +167,14 @@ namespace Anosion.MaterialReplacer.View
 
         private void DrawAvatarMaterialConfiguration(VRCAvatarDescriptor avatar)
         {
+            if (!materialReplacementSettings.TryGetValue(avatar, out var settings))
+            {
+                return;
+            }
+
+            EnsureFoldoutStates(avatar, settings.AvatarMaterialConfig);
+            var avatarFoldoutStates = foldoutStates[avatar];
+
             using (new EditorGUILayout.VerticalScope("box"))
             {
                 using (new EditorGUILayout.HorizontalScope())
@@ -159,9 +182,6 @@ namespace Anosion.MaterialReplacer.View
                     EditorGUILayout.LabelField(avatar.gameObject.name);
                     DrawDisabledObjectField(avatar, typeof(VRCAvatarDescriptor), false);
                 }
-
-
-                MaterialReplacementSettings settings = materialReplacementSettings[avatar];
                 AvatarMaterialConfiguration avatarMaterialConfig = settings.AvatarMaterialConfig;
 
                 foreach (var materialGroup in avatarMaterialConfig.MaterialGroups)
@@ -182,12 +202,23 @@ namespace Anosion.MaterialReplacer.View
                             {
                                 Indent(2);
 
+                                bool isFolded = avatarFoldoutStates[material];
+                                Rect foldoutRect = GUILayoutUtility.GetRect(Layout.FoldoutWidth, EditorGUIUtility.singleLineHeight, GUILayout.Width(Layout.FoldoutWidth));
+                                bool newFolded = EditorGUI.Foldout(foldoutRect, isFolded, GUIContent.none, true);
+                                avatarFoldoutStates[material] = newFolded;
+
                                 DrawDisabledObjectField(material, typeof(Material), false);
 
                                 EditorGUILayout.LabelField("→", Styles.CenteredLabel, Layout.ArrowLabelWidth);
 
-                                Material targetMaterial = (Material)EditorGUILayout.ObjectField(settings.ReplacementMap[material], typeof(Material), false);
-                                settings.ReplacementMap[material] = targetMaterial;
+                                Material previousTargetMaterial = settings.ReplacementMap[material];
+                                Material newTargetMaterial = (Material)EditorGUILayout.ObjectField(previousTargetMaterial, typeof(Material), false);
+                                if (previousTargetMaterial == null && newTargetMaterial != null)
+                                {
+                                    avatarFoldoutStates[material] = true;
+                                }
+
+                                settings.ReplacementMap[material] = newTargetMaterial;
 
                                 if (GUILayout.Button("×", Layout.ClearButtonWidth))
                                 {
@@ -195,14 +226,19 @@ namespace Anosion.MaterialReplacer.View
                                 }
                             }
 
-                            if (settings.ReplacementMap[material] != null)
+                            if (avatarFoldoutStates[material])
                             {
+                                bool hasReplacement = settings.ReplacementMap[material] != null;
                                 foreach (var location in avatarMaterialConfig.Materials[material])
                                 {
                                     using (new EditorGUILayout.HorizontalScope())
                                     {
                                         Indent(3);
+
+                                        EditorGUI.BeginDisabledGroup(!hasReplacement);
                                         bool isSelected = EditorGUILayout.Toggle(settings.SelectedMeshLocations[location], Layout.ToggleWidth);
+                                        EditorGUI.EndDisabledGroup();
+
                                         settings.SelectedMeshLocations[location] = isSelected;
 
                                         DrawDisabledObjectField(location.Mesh, typeof(GameObject), true);
@@ -214,6 +250,23 @@ namespace Anosion.MaterialReplacer.View
                 }
             }
             GUILayout.Space(10);
+        }
+
+        private void EnsureFoldoutStates(VRCAvatarDescriptor avatar, AvatarMaterialConfiguration avatarMaterialConfig)
+        {
+            if (!foldoutStates.ContainsKey(avatar))
+            {
+                foldoutStates[avatar] = new Dictionary<Material, bool>();
+            }
+
+            var existingFoldouts = foldoutStates[avatar];
+            var newFoldouts = new Dictionary<Material, bool>();
+            foreach (var material in avatarMaterialConfig.Materials.Keys)
+            {
+                newFoldouts[material] = existingFoldouts.TryGetValue(material, out var state) ? state : false;
+            }
+
+            foldoutStates[avatar] = newFoldouts;
         }
 
         private void ExecuteReplacement()

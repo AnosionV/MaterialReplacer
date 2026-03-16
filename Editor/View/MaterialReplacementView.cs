@@ -10,6 +10,7 @@ namespace Anosion.MaterialReplacer.View
 
         protected static class Layout
         {
+            public const float FoldoutWidth = 16f;
             public static readonly GUILayoutOption ToggleWidth = GUILayout.Width(15);
             public static readonly GUILayoutOption ArrowLabelWidth = GUILayout.Width(40);
             public static readonly GUILayoutOption ClearButtonWidth = GUILayout.Width(20);
