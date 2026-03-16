@@ -4,6 +4,7 @@ using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace Anosion.MaterialReplacer.View
 {
@@ -193,6 +194,16 @@ namespace Anosion.MaterialReplacer.View
                         Indent(1);
                         EditorGUILayout.LabelField(materialGroup.Key);
                     }
+                    Rect groupHeaderRect = GUILayoutUtility.GetLastRect();
+
+                    List<Object> droppedObjects = HandleDragAndDrop(groupHeaderRect);
+                    foreach (Object droppedObject in droppedObjects)
+                    {
+                        if (droppedObject is DefaultAsset folderAsset)
+                        {
+                            ApplyFolderMappingToGroup(avatar, materialGroup, folderAsset);
+                        }
+                    }
 
                     foreach (var material in materialGroup.Value.Keys)
                     {
@@ -267,6 +278,52 @@ namespace Anosion.MaterialReplacer.View
             }
 
             foldoutStates[avatar] = newFoldouts;
+        }
+
+        private void ApplyFolderMappingToGroup(
+            VRCAvatarDescriptor avatar,
+            KeyValuePair<string, SortedDictionary<Material, List<AvatarMaterialConfiguration.MaterialLocation>>> materialGroup,
+            DefaultAsset folderAsset)
+        {
+            string folderPath = AssetDatabase.GetAssetPath(folderAsset);
+            if (!AssetDatabase.IsValidFolder(folderPath))
+            {
+                return;
+            }
+
+            var normalizedFolderPath = folderPath.Replace('\\', '/');
+            var materialsInFolder = AssetDatabase.FindAssets("t:Material", new[] { folderPath })
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Where(path => string.Equals(
+                    Path.GetDirectoryName(path)?.Replace('\\', '/'),
+                    normalizedFolderPath,
+                    System.StringComparison.OrdinalIgnoreCase))
+                .Select(path => AssetDatabase.LoadAssetAtPath<Material>(path))
+                .Where(material => material != null)
+                .GroupBy(material => material.name)
+                .ToDictionary(group => group.Key, group => group.First());
+
+            if (materialsInFolder.Count == 0)
+            {
+                return;
+            }
+
+            if (!materialReplacementSettings.TryGetValue(avatar, out var settings))
+            {
+                return;
+            }
+
+            EnsureFoldoutStates(avatar, settings.AvatarMaterialConfig);
+            var avatarFoldoutStates = foldoutStates[avatar];
+
+            foreach (var material in materialGroup.Value.Keys)
+            {
+                if (materialsInFolder.TryGetValue(material.name, out var replacement))
+                {
+                    settings.ReplacementMap[material] = replacement;
+                    avatarFoldoutStates[material] = true;
+                }
+            }
         }
 
         private void ExecuteReplacement()
