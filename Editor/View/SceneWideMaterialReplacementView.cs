@@ -89,17 +89,19 @@ namespace Anosion.MaterialReplacer.View
 
             GUILayout.Space(15);
 
-            var includeInactive = EditorGUILayout.Toggle("無効化アバターも含める", this.includeInactive, GUILayout.Width(15));
+            var includeInactive = EditorGUILayout.Toggle("無効化アバターを含める", this.includeInactive);
             if (includeInactive != this.includeInactive)
             {
                 this.includeInactive = includeInactive;
                 UpdateMaterialReplacementSettings();
             }
-            enableSwitch = EditorGUILayout.Toggle("置換後にマテリアルを入れ替え", enableSwitch, GUILayout.Width(15));
+            enableSwitch = EditorGUILayout.Toggle("置換後にマテリアルを入れ替え", enableSwitch);
+            EditorGUI.BeginDisabledGroup(targetMaterial == null);
             if (GUILayout.Button("置換実行", GUILayout.Height(30)))
             {
                 ExecuteReplacement();
             }
+            EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndVertical();
 
             GUILayout.Label("置換設定", EditorStyles.boldLabel);
@@ -183,7 +185,7 @@ namespace Anosion.MaterialReplacer.View
         {
             foreach (var settings in materialReplacementSettingsList.Where(settings => settings.Enable))
             {
-                var renderers = settings.AvatarMaterialConfig.Avatar.gameObject.GetComponentsInChildren<Renderer>();
+                var renderers = settings.AvatarMaterialConfig.Avatar.gameObject.GetComponentsInChildren<Renderer>(true);
                 foreach (var renderer in renderers)
                 {
                     Undo.RegisterCompleteObjectUndo(renderer, "Material Replacement");
@@ -193,7 +195,7 @@ namespace Anosion.MaterialReplacer.View
                 AvatarMaterialConfiguration.ApplyMaterials(transformedConfig);
             }
 
-            if (enableSwitch)
+            if (enableSwitch && targetMaterial != null)
             {
                 replaceableMaterials.list.Clear();
                 replaceableMaterials.list.Add(targetMaterial);

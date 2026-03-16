@@ -76,6 +76,15 @@ namespace Anosion.MaterialReplacer.View
 
         public override void OnGUI()
         {
+            foreach (var avatar in avatars)
+            {
+                if (avatar != null && !materialReplacementSettings.ContainsKey(avatar))
+                {
+                    UpdateMaterialReplacementSettings();
+                    break;
+                }
+            }
+
             EditorGUILayout.BeginVertical();
 
             Rect listRect = GUILayoutUtility.GetRect(0, avatarList.GetHeight(), GUILayout.ExpandWidth(true));
@@ -132,10 +141,6 @@ namespace Anosion.MaterialReplacer.View
                     DrawDisabledObjectField(avatar, typeof(VRCAvatarDescriptor), false);
                 }
 
-                if (!materialReplacementSettings.ContainsKey(avatar))
-                {
-                    UpdateMaterialReplacementSettings();
-                }
 
                 MaterialReplacementSettings settings = materialReplacementSettings[avatar];
                 AvatarMaterialConfiguration avatarMaterialConfig = settings.AvatarMaterialConfig;
@@ -203,7 +208,7 @@ namespace Anosion.MaterialReplacer.View
                                                           .Where(entry => entry.Value != null)
                                                           .ToDictionary(entry => entry.Key, entry => entry.Value);
 
-                    var renderers = avatar.gameObject.GetComponentsInChildren<Renderer>();
+                    var renderers = avatar.gameObject.GetComponentsInChildren<Renderer>(true);
                     foreach (var renderer in renderers)
                     {
                         Undo.RegisterCompleteObjectUndo(renderer, "Material Replacement");

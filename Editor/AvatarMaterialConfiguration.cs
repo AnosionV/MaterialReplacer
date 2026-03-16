@@ -3,7 +3,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-using System.Text.RegularExpressions;
 
 namespace Anosion.MaterialReplacer
 {
@@ -32,7 +31,13 @@ namespace Anosion.MaterialReplacer
 
             var materialPaths = Materials.Keys.ToDictionary(material => material, AssetDatabase.GetAssetPath);
             MaterialGroups = new SortedDictionary<string, SortedDictionary<Material, List<MaterialLocation>>>(Materials
-                .GroupBy(materialEntry => Regex.Replace(Path.GetDirectoryName(materialPaths[materialEntry.Key]), "^Assets.", ""))
+                .GroupBy(materialEntry =>
+                {
+                    var rawPath = Path.GetDirectoryName(materialPaths[materialEntry.Key]) ?? "";
+                    return rawPath.StartsWith("Assets/") || rawPath.StartsWith("Assets\\")
+                        ? rawPath.Substring(7)
+                        : rawPath;
+                })
                 .ToDictionary(
                     group => group.Key,
                     group => new SortedDictionary<Material, List<MaterialLocation>>(group.ToDictionary(pair => pair.Key, pair => pair.Value), new MaterialPathComparer(materialPaths))
@@ -137,7 +142,7 @@ namespace Anosion.MaterialReplacer
                 if (y == null) return 1;
 
                 var pathComp = string.Compare(PathOf[x], PathOf[y], System.StringComparison.Ordinal);
-                return pathComp != 0 ? pathComp : x.GetHashCode().CompareTo(y.GetHashCode());
+                return pathComp != 0 ? pathComp : string.Compare(x.name, y.name, System.StringComparison.Ordinal);
             }
         }
     }
