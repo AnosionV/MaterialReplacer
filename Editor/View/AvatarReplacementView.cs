@@ -189,21 +189,7 @@ namespace Anosion.MaterialReplacer.View
                 {
                     GUILayout.Space(10);
 
-                    using (new EditorGUILayout.HorizontalScope())
-                    {
-                        Indent(1);
-                        EditorGUILayout.LabelField(materialGroup.Key);
-                    }
-                    Rect groupHeaderRect = GUILayoutUtility.GetLastRect();
-
-                    List<Object> droppedObjects = HandleDragAndDrop(groupHeaderRect);
-                    foreach (Object droppedObject in droppedObjects)
-                    {
-                        if (droppedObject is DefaultAsset folderAsset)
-                        {
-                            ApplyFolderMappingToGroup(avatar, materialGroup, folderAsset);
-                        }
-                    }
+                    DrawMaterialGroupHeader(avatar, materialGroup);
 
                     foreach (var material in materialGroup.Value.Keys)
                     {
@@ -278,6 +264,192 @@ namespace Anosion.MaterialReplacer.View
             }
 
             foldoutStates[avatar] = newFoldouts;
+        }
+
+        private void DrawMaterialGroupHeader(
+            VRCAvatarDescriptor avatar,
+            KeyValuePair<string, SortedDictionary<Material, List<AvatarMaterialConfiguration.MaterialLocation>>> materialGroup)
+        {
+            Rect dropAreaRect;
+            var sourceFolderAsset = GetFolderAssetForGroup(materialGroup.Key);
+            using (new EditorGUILayout.VerticalScope())
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    Indent(1);
+                    EditorGUILayout.LabelField(GetDisplayGroupPath(materialGroup.Key), Styles.WrappedPathLabel);
+                }
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    Indent(1);
+                    if (sourceFolderAsset != null)
+                    {
+                        DrawDisabledObjectField(sourceFolderAsset, typeof(DefaultAsset), false, GUILayout.Width(Layout.GroupFolderFieldWidth));
+                    }
+                    else
+                    {
+                        GUILayout.Space(Layout.GroupFolderFieldWidth);
+                    }
+
+                    EditorGUILayout.LabelField("→", Styles.CenteredLabel, Layout.ArrowLabelWidth);
+
+                    dropAreaRect = GUILayoutUtility.GetRect(
+                        Layout.GroupFolderDropAreaWidth,
+                        Layout.GroupFolderDropAreaWidth,
+                        Layout.GroupFolderDropAreaHeight,
+                        Layout.GroupFolderDropAreaHeight);
+
+                    bool isDragOver = IsFolderDragOver(dropAreaRect);
+                    DrawFolderDropArea(dropAreaRect, isDragOver);
+                }
+            }
+
+            if (TryHandleFolderDrop(dropAreaRect, out var droppedFolder))
+            {
+                ApplyFolderMappingToGroup(avatar, materialGroup, droppedFolder);
+                return;
+            }
+
+            if (TryHandleFolderSelectionClick(dropAreaRect, materialGroup.Key, out var selectedFolder))
+            {
+                ApplyFolderMappingToGroup(avatar, materialGroup, selectedFolder);
+            }
+        }
+
+        private void DrawFolderDropArea(Rect dropAreaRect, bool isDragOver)
+        {
+            var backgroundColor = isDragOver
+                ? new Color(0.24f, 0.42f, 0.72f, 0.28f)
+                : new Color(0f, 0f, 0f, 0.12f);
+
+            EditorGUI.DrawRect(dropAreaRect, backgroundColor);
+            GUI.Box(dropAreaRect, GUIContent.none, EditorStyles.helpBox);
+            GUI.Label(
+                dropAreaRect,
+                "一括置換フォルダをドロップ / クリック",
+                isDragOver ? Styles.DropAreaLabelActive : Styles.DropAreaLabel);
+            EditorGUIUtility.AddCursorRect(dropAreaRect, MouseCursor.Link);
+        }
+
+        private bool IsFolderDragOver(Rect dropAreaRect)
+        {
+            Event currentEvent = Event.current;
+            if ((currentEvent.type != EventType.DragUpdated && currentEvent.type != EventType.DragPerform) ||
+                !dropAreaRect.Contains(currentEvent.mousePosition))
+            {
+                return false;
+            }
+
+            return DragAndDrop.objectReferences
+                .OfType<DefaultAsset>()
+                .Any(folderAsset => AssetDatabase.IsValidFolder(AssetDatabase.GetAssetPath(folderAsset)));
+        }
+
+        private bool TryHandleFolderDrop(Rect dropAreaRect, out DefaultAsset folderAsset)
+        {
+            folderAsset = null;
+            if (!IsFolderDragOver(dropAreaRect))
+            {
+                return false;
+            }
+
+            DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+            if (Event.current.type != EventType.DragPerform)
+            {
+                Event.current.Use();
+                return false;
+            }
+
+            DragAndDrop.AcceptDrag();
+            folderAsset = DragAndDrop.objectReferences
+                .OfType<DefaultAsset>()
+                .FirstOrDefault(asset => AssetDatabase.IsValidFolder(AssetDatabase.GetAssetPath(asset)));
+            Event.current.Use();
+            return folderAsset != null;
+        }
+
+        private bool TryHandleFolderSelectionClick(string groupPath, out DefaultAsset folderAsset)
+        {
+            var initialFolderPath = GetInitialFolderPathForSelection(groupPath);
+            string selectedFolderPath = EditorUtility.OpenFolderPanel("置換先フォルダを選択", initialFolderPath, string.Empty);
+            if (string.IsNullOrEmpty(selectedFolderPath))
+            {
+                folderAsset = null;
+                return false;
+            }
+
+            if (!TryConvertToAssetFolderPath(selectedFolderPath, out var assetFolderPath))
+            {
+                EditorUtility.DisplayDialog("Material Replacer", "Assets フォルダ内のフォルダを選択してください。", "OK");
+                folderAsset = null;
+                return false;
+            }
+
+            folderAsset = AssetDatabase.LoadAssetAtPath<DefaultAsset>(assetFolderPath);
+            if (folderAsset == null || !AssetDatabase.IsValidFolder(assetFolderPath))
+            {
+                EditorUtility.DisplayDialog("Material Replacer", "有効なプロジェクト内フォルダを選択してください。", "OK");
+                folderAsset = null;
+                return false;
+            }
+
+            return true;
+        }
+
+        private DefaultAsset GetFolderAssetForGroup(string groupPath)
+        {
+            string assetFolderPath = string.IsNullOrEmpty(groupPath)
+                ? "Assets"
+                : $"Assets/{groupPath.Replace('\\', '/')}";
+            return AssetDatabase.LoadAssetAtPath<DefaultAsset>(assetFolderPath);
+        }
+
+        private string GetDisplayGroupPath(string groupPath)
+        {
+            return string.IsNullOrEmpty(groupPath) ? "Assets" : groupPath.Replace('\\', '/');
+        }
+
+        private string GetInitialFolderPathForSelection(string groupPath)
+        {
+            string currentFolderPath = string.IsNullOrEmpty(groupPath)
+                ? Application.dataPath
+                : Path.Combine(Application.dataPath, groupPath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar));
+            return Path.GetDirectoryName(currentFolderPath) ?? Application.dataPath;
+        }
+
+        private bool TryHandleFolderSelectionClick(Rect dropAreaRect, string groupPath, out DefaultAsset folderAsset)
+        {
+            folderAsset = null;
+            Event currentEvent = Event.current;
+            if (currentEvent.type != EventType.MouseUp || currentEvent.button != 0 || !dropAreaRect.Contains(currentEvent.mousePosition))
+            {
+                return false;
+            }
+
+            currentEvent.Use();
+            return TryHandleFolderSelectionClick(groupPath, out folderAsset);
+        }
+
+        private bool TryConvertToAssetFolderPath(string absoluteFolderPath, out string assetFolderPath)
+        {
+            string normalizedAssetsPath = Application.dataPath.Replace('\\', '/');
+            string normalizedFolderPath = absoluteFolderPath.Replace('\\', '/');
+            if (string.Equals(normalizedFolderPath, normalizedAssetsPath, System.StringComparison.OrdinalIgnoreCase))
+            {
+                assetFolderPath = "Assets";
+                return true;
+            }
+
+            string assetsPrefix = normalizedAssetsPath + "/";
+            if (!normalizedFolderPath.StartsWith(assetsPrefix, System.StringComparison.OrdinalIgnoreCase))
+            {
+                assetFolderPath = null;
+                return false;
+            }
+
+            assetFolderPath = "Assets/" + normalizedFolderPath.Substring(assetsPrefix.Length);
+            return true;
         }
 
         private void ApplyFolderMappingToGroup(

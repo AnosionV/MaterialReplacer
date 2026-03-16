@@ -11,8 +11,11 @@ namespace Anosion.MaterialReplacer.View
         protected static class Layout
         {
             public const float FoldoutWidth = 16f;
+            public const float GroupFolderFieldWidth = 220f;
+            public const float GroupFolderDropAreaWidth = 220f;
+            public const float GroupFolderDropAreaHeight = 20f;
             public static readonly GUILayoutOption ToggleWidth = GUILayout.Width(15);
-            public static readonly GUILayoutOption ArrowLabelWidth = GUILayout.Width(40);
+            public static readonly GUILayoutOption ArrowLabelWidth = GUILayout.Width(20);
             public static readonly GUILayoutOption ClearButtonWidth = GUILayout.Width(20);
             public static readonly GUILayoutOption ActionButtonHeight = GUILayout.Height(30);
             public static readonly GUILayoutOption RefreshButtonHeight = GUILayout.Height(20);
@@ -23,10 +26,33 @@ namespace Anosion.MaterialReplacer.View
         protected static class Styles
         {
             private static GUIStyle centeredLabel;
+            private static GUIStyle dropAreaLabel;
+            private static GUIStyle dropAreaLabelActive;
+            private static GUIStyle wrappedPathLabel;
 
             public static GUIStyle CenteredLabel => centeredLabel ??= new(GUI.skin.label)
             {
                 alignment = TextAnchor.MiddleCenter
+            };
+
+            public static GUIStyle DropAreaLabel => dropAreaLabel ??= new(EditorStyles.centeredGreyMiniLabel)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                clipping = TextClipping.Clip
+            };
+
+            public static GUIStyle DropAreaLabelActive => dropAreaLabelActive ??= new(DropAreaLabel)
+            {
+                fontStyle = FontStyle.Bold,
+                normal =
+                {
+                    textColor = GUI.skin.label.normal.textColor
+                }
+            };
+
+            public static GUIStyle WrappedPathLabel => wrappedPathLabel ??= new(EditorStyles.label)
+            {
+                wordWrap = true
             };
         }
 
