@@ -96,16 +96,10 @@ namespace Anosion.MaterialReplacer
             }
         }
 
-        public class MaterialLocation
+        public class MaterialLocation(GameObject mesh, int slotIndex)
         {
-            public GameObject Mesh { get; }
-            public int SlotIndex { get; }
-
-            public MaterialLocation(GameObject mesh, int slotIndex)
-            {
-                Mesh = mesh;
-                SlotIndex = slotIndex;
-            }
+            public GameObject Mesh { get; } = mesh;
+            public int SlotIndex { get; } = slotIndex;
 
             public void ApplyMaterial(Material material)
             {
@@ -126,14 +120,9 @@ namespace Anosion.MaterialReplacer
             }
         }
 
-        private class MaterialPathComparer : IComparer<Material>
+        private class MaterialPathComparer(Dictionary<Material, string> pathOf) : IComparer<Material>
         {
-            private Dictionary<Material, string> PathOf { get; }
-
-            public MaterialPathComparer(Dictionary<Material, string> pathOf)
-            {
-                PathOf = pathOf;
-            }
+            private Dictionary<Material, string> PathOf { get; } = pathOf;
 
             public int Compare(Material x, Material y)
             {
