@@ -7,18 +7,26 @@ namespace Anosion.MaterialReplacer.View
     public abstract class MaterialReplacementView
     {
         protected Vector2 scrollPosition = Vector2.zero;
-        private GUIStyle centeredText;
 
-        protected GUIStyle CenteredText
+        protected static class Layout
         {
-            get
+            public static readonly GUILayoutOption ToggleWidth = GUILayout.Width(15);
+            public static readonly GUILayoutOption ArrowLabelWidth = GUILayout.Width(40);
+            public static readonly GUILayoutOption ClearButtonWidth = GUILayout.Width(20);
+            public static readonly GUILayoutOption ActionButtonHeight = GUILayout.Height(30);
+            public static readonly GUILayoutOption RefreshButtonHeight = GUILayout.Height(20);
+            public const float IndentWidth = 15f;
+            public const float SectionSpacing = 15f;
+        }
+
+        protected static class Styles
+        {
+            private static GUIStyle centeredLabel;
+
+            public static GUIStyle CenteredLabel => centeredLabel ??= new(GUI.skin.label)
             {
-                centeredText ??= new(GUI.skin.label)
-                {
-                    alignment = TextAnchor.MiddleCenter
-                };
-                return centeredText;
-            }
+                alignment = TextAnchor.MiddleCenter
+            };
         }
 
         public virtual void OnEnable()
@@ -40,7 +48,7 @@ namespace Anosion.MaterialReplacer.View
 
         protected void Indent(int level)
         {
-            GUILayout.Space(15 * level);
+            GUILayout.Space(Layout.IndentWidth * level);
         }
 
         protected List<Object> HandleDragAndDrop(Rect dropArea)

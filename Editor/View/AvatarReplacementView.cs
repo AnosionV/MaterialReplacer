@@ -76,6 +76,14 @@ namespace Anosion.MaterialReplacer.View
 
         public override void OnGUI()
         {
+            EnsureViewState();
+            DrawInputSection();
+            DrawActionSection();
+            DrawResultSection();
+        }
+
+        private void EnsureViewState()
+        {
             foreach (var avatar in avatars)
             {
                 if (avatar != null && !materialReplacementSettings.ContainsKey(avatar))
@@ -84,7 +92,10 @@ namespace Anosion.MaterialReplacer.View
                     break;
                 }
             }
+        }
 
+        private void DrawInputSection()
+        {
             EditorGUILayout.BeginVertical();
 
             Rect listRect = GUILayoutUtility.GetRect(0, avatarList.GetHeight(), GUILayout.ExpandWidth(true));
@@ -104,18 +115,25 @@ namespace Anosion.MaterialReplacer.View
                 }
             }
 
-            if (GUILayout.Button("置換実行", GUILayout.Height(30)))
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawActionSection()
+        {
+            if (GUILayout.Button("置換実行", Layout.ActionButtonHeight))
             {
                 ExecuteReplacement();
             }
-            EditorGUILayout.EndVertical();
 
             GUILayout.Label("置換設定", EditorStyles.boldLabel);
-            if (GUILayout.Button("マテリアル分布の更新", GUILayout.Height(20)))
+            if (GUILayout.Button("マテリアル分布の更新", Layout.RefreshButtonHeight))
             {
                 UpdateMaterialReplacementSettings();
             }
+        }
 
+        private void DrawResultSection()
+        {
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
 
             if (avatars.Count > 0)
@@ -128,6 +146,7 @@ namespace Anosion.MaterialReplacer.View
                     }
                 }
             }
+
             EditorGUILayout.EndScrollView();
         }
 
@@ -165,12 +184,12 @@ namespace Anosion.MaterialReplacer.View
 
                                 DrawDisabledObjectField(material, typeof(Material), false);
 
-                                EditorGUILayout.LabelField("→", CenteredText, GUILayout.Width(40));
+                                EditorGUILayout.LabelField("→", Styles.CenteredLabel, Layout.ArrowLabelWidth);
 
                                 Material targetMaterial = (Material)EditorGUILayout.ObjectField(settings.ReplacementMap[material], typeof(Material), false);
                                 settings.ReplacementMap[material] = targetMaterial;
 
-                                if (GUILayout.Button("×", GUILayout.Width(20)))
+                                if (GUILayout.Button("×", Layout.ClearButtonWidth))
                                 {
                                     settings.ReplacementMap[material] = null;
                                 }
@@ -183,7 +202,7 @@ namespace Anosion.MaterialReplacer.View
                                     using (new EditorGUILayout.HorizontalScope())
                                     {
                                         Indent(3);
-                                        bool isSelected = EditorGUILayout.Toggle(settings.SelectedMeshLocations[location], GUILayout.Width(15));
+                                        bool isSelected = EditorGUILayout.Toggle(settings.SelectedMeshLocations[location], Layout.ToggleWidth);
                                         settings.SelectedMeshLocations[location] = isSelected;
 
                                         DrawDisabledObjectField(location.Mesh, typeof(GameObject), true);

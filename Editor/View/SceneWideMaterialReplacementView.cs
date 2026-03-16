@@ -70,6 +70,13 @@ namespace Anosion.MaterialReplacer.View
         // マテリアル置換ビューのGUIを描画します（マテリアル選択およびオブジェクト処理リストを含む）。
         public override void OnGUI()
         {
+            DrawInputSection();
+            DrawActionSection();
+            DrawResultSection();
+        }
+
+        private void DrawInputSection()
+        {
             EditorGUILayout.BeginVertical();
 
             Rect listRect = GUILayoutUtility.GetRect(0, replaceableMaterials.GetHeight(), GUILayout.ExpandWidth(true));
@@ -87,7 +94,7 @@ namespace Anosion.MaterialReplacer.View
 
             targetMaterial = (Material)EditorGUILayout.ObjectField("置換先マテリアル", targetMaterial, typeof(Material), false);
 
-            GUILayout.Space(15);
+            GUILayout.Space(Layout.SectionSpacing);
 
             var includeInactive = EditorGUILayout.Toggle("無効化アバターを含める", this.includeInactive);
             if (includeInactive != this.includeInactive)
@@ -95,21 +102,30 @@ namespace Anosion.MaterialReplacer.View
                 this.includeInactive = includeInactive;
                 UpdateMaterialReplacementSettings();
             }
+
             enableSwitch = EditorGUILayout.Toggle("置換後にマテリアルを入れ替え", enableSwitch);
+
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawActionSection()
+        {
             EditorGUI.BeginDisabledGroup(targetMaterial == null);
-            if (GUILayout.Button("置換実行", GUILayout.Height(30)))
+            if (GUILayout.Button("置換実行", Layout.ActionButtonHeight))
             {
                 ExecuteReplacement();
             }
             EditorGUI.EndDisabledGroup();
-            EditorGUILayout.EndVertical();
 
             GUILayout.Label("置換設定", EditorStyles.boldLabel);
-            if (GUILayout.Button("マテリアル分布の更新", GUILayout.Height(20)))
+            if (GUILayout.Button("マテリアル分布の更新", Layout.RefreshButtonHeight))
             {
                 UpdateMaterialReplacementSettings();
             }
+        }
 
+        private void DrawResultSection()
+        {
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
             if (materialReplacementSettingsList.Count > 0)
             {
@@ -146,7 +162,7 @@ namespace Anosion.MaterialReplacer.View
             {
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    settings.Enable = EditorGUILayout.Toggle(settings.Enable, GUILayout.Width(15));
+                    settings.Enable = EditorGUILayout.Toggle(settings.Enable, Layout.ToggleWidth);
                     DrawDisabledObjectField(settings.AvatarMaterialConfig.Avatar, typeof(VRCAvatarDescriptor), true);
                 }
 
@@ -168,7 +184,7 @@ namespace Anosion.MaterialReplacer.View
                                 using (new EditorGUILayout.HorizontalScope())
                                 {
                                     Indent(2);
-                                    bool isSelectedLocation = EditorGUILayout.Toggle(settings.SelectedMeshLocations[location], GUILayout.Width(15));
+                                    bool isSelectedLocation = EditorGUILayout.Toggle(settings.SelectedMeshLocations[location], Layout.ToggleWidth);
                                     settings.SelectedMeshLocations[location] = isSelectedLocation;
 
                                     DrawDisabledObjectField(location.Mesh, typeof(GameObject), true);
