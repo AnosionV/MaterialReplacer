@@ -43,11 +43,7 @@ namespace Anosion.MaterialReplacer.View
 
             public static GUIStyle DropAreaLabelActive => dropAreaLabelActive ??= new(DropAreaLabel)
             {
-                fontStyle = FontStyle.Bold,
-                normal =
-                {
-                    textColor = GUI.skin.label.normal.textColor
-                }
+                fontStyle = FontStyle.Bold
             };
 
             public static GUIStyle WrappedPathLabel => wrappedPathLabel ??= new(EditorStyles.label)

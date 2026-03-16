@@ -80,10 +80,21 @@ namespace Anosion.MaterialReplacer
                    thisObjectMaterialData.Any(kvp => kvp.Value.Count != objectMaterialData[kvp.Key].Count || !kvp.Value.SequenceEqual(objectMaterialData[kvp.Key]));
         }
 
-        public static Dictionary<GameObject, List<Material>> ExtractMaterialData(GameObject avatar) =>
-            avatar.GetComponentsInChildren<Renderer>(true)
-                .Where(renderer => renderer != null)
-                .ToDictionary(renderer => renderer.gameObject, renderer => renderer.sharedMaterials.ToList());
+        public static Dictionary<GameObject, List<Material>> ExtractMaterialData(GameObject avatar)
+        {
+            var result = new Dictionary<GameObject, List<Material>>();
+            foreach (var renderer in avatar.GetComponentsInChildren<Renderer>(true))
+            {
+                if (renderer == null)
+                {
+                    continue;
+                }
+
+                result[renderer.gameObject] = renderer.sharedMaterials.ToList();
+            }
+
+            return result;
+        }
 
         public static void ApplyMaterials(AvatarMaterialConfiguration config)
         {

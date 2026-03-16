@@ -7,7 +7,6 @@ namespace Anosion.MaterialReplacer.View
     public class MaterialReplacerWindow : EditorWindow
     {
         private (string Name, MaterialReplacementView View)[] tabs;
-        private MaterialReplacementView[] views;
         private string[] tabNames;
         private int selectedTab = 0;
 
@@ -26,21 +25,20 @@ namespace Anosion.MaterialReplacer.View
                     ("アバター単位", new AvatarReplacementView()),
                     ("マテリアル単位", new SceneWideMaterialReplacementView())
                 };
-                views = tabs.Select(tab => tab.View).ToArray();
                 tabNames = tabs.Select(tab => tab.Name).ToArray();
             }
 
-            foreach (var view in views)
+            foreach (var tab in tabs)
             {
-                view.OnEnable();
+                tab.View.OnEnable();
             }
         }
 
         private void OnDisable()
         {
-            foreach (var view in views)
+            foreach (var tab in tabs)
             {
-                view.OnDisable();
+                tab.View.OnDisable();
             }
         }
 
