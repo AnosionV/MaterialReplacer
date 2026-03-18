@@ -1,0 +1,17 @@
+name: Update VPM Website
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-website:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update Website
+        run: |
+          curl \
+            -X POST \
+            -H "Authorization: token ${{ secrets.AUTOUPDATETOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/AnosionV/vpm/dispatches \
+            -d '{"event_type":"update-vpm-page","client_payload":{"env": "dev"}}'
